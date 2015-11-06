@@ -1,16 +1,20 @@
 package controllers;
  
+import play.*;
 import play.mvc.*;
-
+import play.data.validation.*;
+ 
 import java.util.*;
-
+ 
+import models.*;
+ 
 @With(Secure.class)
 public class Admin extends Controller {
     
     @Before
     static void setConnectedUser() {
         if(Security.isConnected()) {
-            Users user = Users.find("byEmail", Security.connected()).first();
+            User user = User.find("byEmail", Security.connected()).first();
             renderArgs.put("user", user.fullname);
         }
     }
@@ -32,7 +36,7 @@ public class Admin extends Controller {
         Post post;
         if(id == null) {
             // Create post
-            Users author = Users.find("byEmail", Security.connected()).first();
+            User author = User.find("byEmail", Security.connected()).first();
             post = new Post(author, title, content);
         } else {
             // Retrieve post
