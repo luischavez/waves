@@ -27,7 +27,7 @@
             
             <ul id="adminMenu">
                 <li class="${request.controller == 'Admin' ? 'selected' : ''}">
-                    <a href="@{Users.index()}">My posts</a>
+                    <a href="@{Admin.index()}">My posts</a>
                 </li>
                 #{secure.check 'admin'}
                     <li class="${request.controller == 'Posts' ? 'selected' : ''}">

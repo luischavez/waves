@@ -4,12 +4,12 @@
 <ul id="pagination">
     #{if post.previous()}
         <li id="previous">
-            <a href="@{Waves.show(post.previous().id)}">${post.previous().title}</a>
+            <a href="@{Application.show(post.previous().id)}">${post.previous().title}</a>
         </li>
     #{/if}
     #{if post.next()}
         <li id="next">
-            <a href="@{Waves.show(post.next().id)}">${post.next().title}</a>
+            <a href="@{Application.show(post.next().id)}">${post.next().title}</a>
         </li>
     #{/if}
 </ul>
@@ -22,7 +22,7 @@
 
 <h3>Post a comment</h3>
  
-#{form @Waves.postComment(post.id)}
+#{form @Application.postComment(post.id)}
  
     #{ifErrors}
         <p class="error">
@@ -40,7 +40,7 @@
     </p>
     <p>
         <label for="code">Please type the code below: </label>
-        <img src="@{Waves.captcha(randomID)}" />
+        <img src="@{Application.captcha(randomID)}" />
         <br />
         <input type="text" name="code" id="code" size="18" value="" />
         <input type="hidden" name="randomID" value="${randomID}" />
