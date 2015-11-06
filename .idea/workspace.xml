@@ -136,6 +136,7 @@
     <property name="OverrideImplement.overriding.sorted" value="false" />
     <property name="last_opened_file_path" value="D:/play/modules/crud" />
     <property name="DefaultHtmlFileTemplate" value="Html5" />
+    <property name="FullScreen" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -445,18 +446,21 @@
     </option>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="9a9b3492-cb54-4a9c-8c8a-01d615cca4ab" name="Default" comment="" />
       <created>1446773713501</created>
       <option name="number" value="Default" />
       <updated>1446773713501</updated>
-      <workItem from="1446773714773" duration="9487000" />
+      <workItem from="1446773714773" duration="9573000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9487000" />
+    <option name="totallyTimeSpent" value="9573000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -487,6 +491,14 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
     </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
