@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="0.054" errors="0" skipped="0" tests="6" name="AggregationTest">
+  <testcase classname="AggregationTest" name="testMax" time="0.011">
+      </testcase>
+  <testcase classname="AggregationTest" name="testMin" time="0.01">
+      </testcase>
+  <testcase classname="AggregationTest" name="testSum" time="0.006">
+      </testcase>
+  <testcase classname="AggregationTest" name="testAverage" time="0.015">
+      </testcase>
+  <testcase classname="AggregationTest" name="testCount" time="0.006">
+      </testcase>
+  <testcase classname="AggregationTest" name="testInClause" time="0.006">
+      </testcase>
+</testsuite>

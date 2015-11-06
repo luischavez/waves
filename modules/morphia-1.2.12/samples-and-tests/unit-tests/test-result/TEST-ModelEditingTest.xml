@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="0.071" errors="0" skipped="0" tests="4" name="ModelEditingTest">
+  <testcase classname="ModelEditingTest" name="testSingleRelationWithCustomKey" time="0.053">
+      </testcase>
+  <testcase classname="ModelEditingTest" name="testSingleRelationWithDefaultKey" time="0.007">
+      </testcase>
+  <testcase classname="ModelEditingTest" name="testMultipleRelationWithCustomKey" time="0.006">
+      </testcase>
+  <testcase classname="ModelEditingTest" name="testMultipleRelationWithDefaultKey" time="0.005">
+      </testcase>
+</testsuite>

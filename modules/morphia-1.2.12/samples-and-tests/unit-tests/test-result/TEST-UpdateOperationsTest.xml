@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="0.03" errors="0" skipped="0" tests="6" name="UpdateOperationsTest">
+  <testcase classname="UpdateOperationsTest" name="testUpdateModel" time="0.017">
+      </testcase>
+  <testcase classname="UpdateOperationsTest" name="testUpdateFirst" time="0.004">
+      </testcase>
+  <testcase classname="UpdateOperationsTest" name="testUpdateAll" time="0.002">
+      </testcase>
+  <testcase classname="UpdateOperationsTest" name="testUpdateNull" time="0.002">
+      </testcase>
+  <testcase classname="UpdateOperationsTest" name="testUpdateSet" time="0.002">
+      </testcase>
+  <testcase classname="UpdateOperationsTest" name="testIncDec" time="0.003">
+      </testcase>
+</testsuite>

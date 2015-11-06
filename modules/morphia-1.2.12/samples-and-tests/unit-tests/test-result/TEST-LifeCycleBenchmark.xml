@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="22.468" errors="0" skipped="0" tests="1" name="LifeCycleBenchmark">
+  <testcase classname="LifeCycleBenchmark" name="benchmark" time="22.468">
+      </testcase>
+</testsuite>

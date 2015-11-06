@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="0.024" errors="0" skipped="0" tests="8" name="AccountTest">
+  <testcase classname="AccountTest" name="testDeleteAll" time="0.004">
+      </testcase>
+  <testcase classname="AccountTest" name="testDelete" time="0.003">
+      </testcase>
+  <testcase classname="AccountTest" name="testFindAll" time="0.001">
+      </testcase>
+  <testcase classname="AccountTest" name="testIdAfterSaved" time="0.001">
+      </testcase>
+  <testcase classname="AccountTest" name="testTransientField" time="0.004">
+      </testcase>
+  <testcase classname="AccountTest" name="testFindByNullId" time="0.003">
+      </testcase>
+  <testcase classname="AccountTest" name="testUnique" time="0.003">
+      </testcase>
+  <testcase classname="AccountTest" name="testDistinct" time="0.005">
+      </testcase>
+</testsuite>

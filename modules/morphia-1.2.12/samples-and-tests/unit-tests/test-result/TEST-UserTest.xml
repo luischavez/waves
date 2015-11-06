@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<testsuite failures="0" time="0.304" errors="0" skipped="0" tests="5" name="UserTest">
+  <testcase classname="UserTest" name="checkFieldAccessibility" time="0.209">
+      </testcase>
+  <testcase classname="UserTest" name="testStoreUser" time="0.009">
+      </testcase>
+  <testcase classname="UserTest" name="testStoreUserWithAttachment" time="0.029">
+      </testcase>
+  <testcase classname="UserTest" name="testDeleteBlob" time="0.018">
+      </testcase>
+  <testcase classname="UserTest" name="testBatchDeleteBlob" time="0.039">
+      </testcase>
+</testsuite>
