@@ -1,0 +1,11 @@
+#{extends 'main.html' /}
+#{set title:'Acerca de' /}
+
+${sound.name}
+
+<audio controls>
+    <source src="@{controllers.Application.download(sound.id)}" type="audio/mpeg" />
+    Tu navegador no es compatible con esta característica.
+</audio>
+
+<a href="@{controllers.Application.download(sound.id)}">download</a>

@@ -1,0 +1,11 @@
+#{extends 'main.html' /}
+#{set title:'Subir archivo' /}
+
+#{form @Application.uploadFile(), method:'POST', enctype:'multipart/form-data'}
+<div>
+    Archivo: <input type="file" name="file" />
+</div>
+<div>
+    <input type="submit" value="Subir" />
+</div>
+#{/form}
