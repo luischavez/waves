@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set title:'Inicio' /}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Estadisticas
+    </div>
+    <div class="list-group">
+        <p class="list-group-item">
+            <b>Amigos:</b><span class="badge">${friendCount}</span>
+        </p>
+        <p class="list-group-item">
+            <b>Musica:</b><span class="badge">${soundCount}</span>
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Mas reciente
+    </div>
+    <div class="list-group">
+        #{if relation}
+            <p class="list-group-item">
+                #{friend user:user, relation:relation /}
+            </p>
+        #{/if}
+        #{if sound}
+            <p class="list-group-item">
+                #{file user:user, sound:sound /}
+            </p>
+        #{/if}
+    </div>
+</div>
+
