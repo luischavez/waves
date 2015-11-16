@@ -14,11 +14,13 @@ import play.libs.MimeTypes;
 import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
+import play.mvc.With;
 
 import securesocial.provider.SocialUser;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +28,11 @@ import java.util.Map;
 /**
  * Created by frost on 15/11/2015.
  */
+@With(SecureSocial.class)
 public class Application extends Controller {
 
     @Before
-    static void checkLogin() {
-        if (!SecureSocial.isUserLoggedIn()) {
-            redirect(Router.reverse("securesocial.SecureSocial.login").url);
-        }
+    static void commons() {
     }
 
     static User currentUser() {
@@ -46,18 +46,28 @@ public class Application extends Controller {
 
     static List<Relation> relations() {
         User currentUser = currentUser();
-        return Relation.find("user", currentUser).asList();
+
+        List<Relation> relations = new ArrayList<>();
+        relations.addAll(Relation.find("user", currentUser).order("-_created").asList());
+        relations.addAll(Relation.find("friend", currentUser).order("-_created").asList());
+
+        return relations;
     }
 
-    static Relation relation(String email) {
+    static Relation relation(String friendEmail) {
         User currentUser = currentUser();
-        User friend = user(email);
+        User friend = user(friendEmail);
 
-        return Relation.find("user, friend", currentUser, friend).first();
+        Relation relation = Relation.find("user, friend", currentUser, friend).first();
+        if (null == relation) {
+            relation = Relation.find("user, friend", friend, currentUser).first();
+        }
+
+        return relation;
     }
 
     static List<Sound> sounds(String email) {
-        return Sound.find("user", user(email)).asList();
+        return Sound.find("user", user(email)).order("-_created").asList();
     }
 
     static Sound sound(String id) {
@@ -81,6 +91,36 @@ public class Application extends Controller {
         return valid ? sound : null;
     }
 
+    public static void home() {
+        List<Relation> relations = relations();
+        List<Sound> sounds = sounds(currentUser().email);
+
+        int friendCount = 0;
+        int soundCount = sounds.size();
+
+        for (Relation relation : relations) {
+            if (relation.accepted) {
+                friendCount++;
+            }
+        }
+
+        if (!relations.isEmpty()) {
+            Relation relation = relations.get(0);
+            if (relation.accepted) {
+                renderArgs.put("relation", relation);
+            }
+        }
+
+        if (!sounds.isEmpty()) {
+            renderArgs.put("sound", sounds.get(0));
+        }
+
+        renderArgs.put("friendCount", friendCount);
+        renderArgs.put("soundCount", soundCount);
+
+        render();
+    }
+
     public static void friends() {
         List<Relation> relations = relations();
         renderArgs.put("friends", relations);
@@ -90,19 +130,34 @@ public class Application extends Controller {
 
     public static void acceptFriend(@Required String email) {
         Relation relation = relation(email);
-        if (null != relation) {
+        User friend = user(email);
+
+        if (null != relation && !currentUser().email.equals(email)) {
             relation.accepted = true;
             relation.save();
+            flash.success("Se acepto al usuario [%s]", friend.displayName);
+        } else {
+            flash.error("El usuario [%s] no esta en tu lista de amigos", friend.displayName);
         }
 
         redirect(Router.reverse("Application.friends").url);
     }
 
     public static void addFriend(@Required String email) {
-        Relation relation = relation(email);
-        if (null == relation) {
-            relation = new Relation(currentUser(), user(email));
-            relation.save();
+        if (!currentUser().email.equals(email)) {
+            User friend = user(email);
+            Relation relation = relation(email);
+            if (null == friend) {
+                flash.error("El usuario [%s] no existe!", email);
+            } else {
+                if (null == relation) {
+                    relation = new Relation(currentUser(), friend);
+                    relation.save();
+                    flash.success("Se envio la solicitud al usuario [%s]", friend.displayName);
+                } else {
+                    flash.error("Ya existe una solicitud [%s] en espera", friend.displayName);
+                }
+            }
         }
 
         redirect(Router.reverse("Application.friends").url);
@@ -110,25 +165,27 @@ public class Application extends Controller {
 
     public static void removeFriend(@Required String email) {
         Relation relation = relation(email);
-        if (null != relation) {
+        User friend = user(email);
+
+        if (null != relation && !currentUser().email.equals(email)) {
             relation.delete();
+            flash.success("Se elimino al usuario [%s]", friend.displayName);
+        } else {
+            flash.error("El usuario [%s] no esta en tu lista de amigos", friend.displayName);
         }
 
         redirect(Router.reverse("Application.friends").url);
     }
 
-    public static void uploadForm() {
-        render();
-    }
-
-    public static void listFiles(@Required String email) {
+    public static void files(@Required String email) {
         Relation relation = relation(email);
 
-        if (currentUser().email.equals(email)
-                || (null != relation && relation.friend.email.equals(email))) {
+        if (currentUser().email.equals(email) || null != relation) {
             List<Sound> sounds = sounds(email);
             renderArgs.put("sounds", sounds);
         }
+
+        renderArgs.put("filesOwner", user(email));
 
         render();
     }
@@ -151,20 +208,24 @@ public class Application extends Controller {
                 target.createNewFile();
                 if (!target.exists()) {
                     sound.delete();
+                    flash.error("No se pudo subir el archivo [%s]", sound.name);
                 } else {
                     sound.path = target.getPath();
                     sound.save();
 
                     Files.copy(file, target);
-                    Files.delete(file);
+                    flash.success("Se subio correctamente el archivo [%s]", sound.name);
                 }
+                Files.delete(file);
+            } else {
+                flash.error("El archivo [%s] no es valido!");
             }
         }
 
         Map<String, Object> args = new HashMap<>();
         args.put("email", currentUser.email);
 
-        redirect(Router.reverse("Application.listFiles", args).url);
+        redirect(Router.reverse("Application.files", args).url);
     }
 
     public static void deleteFile(@Required String id) {
@@ -172,12 +233,13 @@ public class Application extends Controller {
         if (null != sound) {
             Files.delete(new File(sound.path));
             sound.delete();
+            flash.success("Se elimino correctamente el archivo [%s]", sound.name);
         }
 
         Map<String, Object> args = new HashMap<>();
         args.put("email", currentUser().email);
 
-        redirect(Router.reverse("Application.listFiles", args).url);
+        redirect(Router.reverse("Application.files", args).url);
     }
 
     public static void streamFile(@Required String id) {
@@ -186,7 +248,7 @@ public class Application extends Controller {
             Map<String, Object> args = new HashMap<>();
             args.put("email", currentUser().email);
 
-            redirect(Router.reverse("Application.listFiles", args).url);
+            redirect(Router.reverse("Application.files", args).url);
         }
 
         renderArgs.put("sound", sound);

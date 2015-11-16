@@ -1,11 +1,20 @@
 #{extends 'main.html' /}
 #{set title:'Acerca de' /}
 
-${sound.name}
 
-<audio controls>
-    <source src="@{controllers.Application.download(sound.id)}" type="audio/mpeg" />
-    Tu navegador no es compatible con esta característica.
-</audio>
 
-<a href="@{controllers.Application.download(sound.id)}">download</a>
+<div class="panel panel-primary">
+    <div class="panel-heading text-center">
+        ${sound.name}
+        <a href="@{controllers.Application.download(sound.id)}" class="btn btn-default">
+            <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+            download
+        </a>
+    </div>
+    <div class="panel-body text-center">
+        <audio controls style="width: 100%;">
+            <source src="@{controllers.Application.download(sound.id)}" type="audio/mpeg" />
+            Tu navegador no es compatible con esta característica.
+        </audio>
+    </div>
+</div>

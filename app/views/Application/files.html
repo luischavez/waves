@@ -1,0 +1,26 @@
+#{extends 'main.html' /}
+#{set title:'Musica' /}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Musica de ${filesOwner.displayName}
+    </div>
+    #{if user.email.equals(filesOwner.email)}
+        <div class="panel-body">
+            #{form @Application.uploadFile(), method:'POST', enctype:'multipart/form-data', class:'form-inline'}
+                <div class="form-group">
+                    <input type="file" name="file" />
+                </div>
+                <button type="submit" class="btn btn-primary">Subir</button>
+            #{/form}
+        </div>
+    #{/if}
+
+    <div class="list-group">
+        #{list items:sounds, as:'sound'}
+            <p class="list-group-item">
+                #{file user:user, sound:sound/}
+            </p>
+        #{/list}
+    </div>
+</div>
