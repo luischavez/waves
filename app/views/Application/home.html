@@ -1,23 +1,23 @@
 #{extends 'main.html' /}
-#{set title:'Inicio' /}
+#{set 'title'}&{'waves.home'}#{/set}
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Estadisticas
+        &{'waves.statistics'}
     </div>
     <div class="list-group">
         <p class="list-group-item">
-            <b>Amigos:</b><span class="badge">${friendCount}</span>
+            <b>&{'waves.friendCount'}:</b><span class="badge">${friendCount}</span>
         </p>
         <p class="list-group-item">
-            <b>Musica:</b><span class="badge">${soundCount}</span>
+            <b>&{'waves.musicCount'}:</b><span class="badge">${soundCount}</span>
         </p>
     </div>
 </div>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Mas reciente
+        &{'waves.recent'}
     </div>
     <div class="list-group">
         #{if relation}

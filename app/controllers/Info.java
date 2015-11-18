@@ -14,12 +14,4 @@ public class Info extends Controller {
     public static void landing() {
         render();
     }
-
-    /**
-     * Accion que muestra la informacion acerca de la pagina.
-     */
-    public static void about() {
-        render();
-    }
-
 }

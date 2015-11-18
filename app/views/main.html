@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="${play.i18n.Lang.get()}">
 <head>
     <meta charset="${_response_encoding}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,11 +22,11 @@
                     <a class="navbar-brand" href="#">
                         <img alt="Brand" src="@{'/public/images/favicon.png'}">
                     </a>
-                    <a class="navbar-brand" href="#">Waves</a>
+                    <a class="navbar-brand" href="#">&{'waves.header'}</a>
                 </div>
                 #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
                     <p class="navbar-text">
-                        Bienvenido! <b>${user.displayName}</b>
+                        &{'waves.welcome', user.displayName}
                     </p>
                 #{/if}
             </div>
@@ -55,20 +55,20 @@
         <div id="content" class="row">
             <div class="col-md-2">
                 <div class="panel panel-primary">
-                    <div class="panel-heading">Navegacion</div>
+                    <div class="panel-heading">&{'waves.menu'}</div>
                     <ul class="list-group">
                         <li class="list-group-item">
-                            <a href="@{controllers.Application.home}">Inicio</a>
+                            <a href="@{controllers.Application.home}">&{'waves.homeLink'}</a>
                         </li>
                         #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
                             <li class="list-group-item">
-                                <a href="@{controllers.Application.friends}">Amigos</a>
+                                <a href="@{controllers.Application.friends}">&{'waves.friendsLink'}</a>
                             </li>
                             <li class="list-group-item">
-                                <a href="@{controllers.Application.files(user.email)}">Mi musica!</a>
+                                <a href="@{controllers.Application.files(user.email)}">&{'waves.musicLink'}</a>
                             </li>
                             <li class="list-group-item">
-                                <a href="@{controllers.securesocial.SecureSocial.logout()}">Salir</a>
+                                <a href="@{controllers.securesocial.SecureSocial.logout()}">&{'waves.exitLink'}</a>
                             </li>
                         #{/if}
                     </ul>
@@ -81,7 +81,13 @@
     </div>
 
     <div id="footer">
-
+        <div class="navbar navbar-inverse navbar-fixed-bottom">
+            <div class="container-fluid">
+                <div class="navbar-text pull-left">
+                    &{'waves.copyright'}
+                </div>
+            </div>
+        </div>
     </div>
 
     #{script 'jquery.js' /}
@@ -92,8 +98,8 @@
         (function ($) {
             $(function(){
                 $('[data-toggle="confirmation"]').confirmation({
-                    btnOkLabel: 'Si',
-                    btnCancelLabel: 'No',
+                    btnOkLabel: '&{'waves.confirmOk'}',
+                    btnCancelLabel: '&{'waves.confirmCancel'}',
                     onConfirm: function(event, element){
                         window.location = $(element).attr('href');
                     }

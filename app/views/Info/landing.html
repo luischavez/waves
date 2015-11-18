@@ -1,8 +1,56 @@
-#{extends 'main.html' /}
-#{set title:'WAVES' /}
+<!doctype html>
+<html lang="${play.i18n.Lang.get()}">
+<head>
+    <meta charset="${_response_encoding}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-#{if controllers.securesocial.SecureSocial.getCurrentUser() == null }
-<a href="@{controllers.Application.home}">Ingresar</a>
-#{/if}
+    <title>&{'waves.landing'}</title>
+
+    <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
+
+    #{stylesheet 'bootstrap.min.css' /}
+    #{stylesheet 'bootstrap-theme.min.css'/}
+
+</head>
+<body>
+<div id="header">
+    <nav class="navbar navbar-default navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="@{'/public/images/favicon.png'}">
+                </a>
+                <a class="navbar-brand" href="#">&{'waves.header'}</a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="container-fluid">
+    <div id="content" class="row">
+        <div class="col-md-12">
+            #{if controllers.securesocial.SecureSocial.getCurrentUser() == null }
+                <a href="@{controllers.Application.home}">&{'waves.enter'}</a>
+            #{/if}
+        </div>
+    </div>
+</div>
+
+<div id="footer">
+    <div class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="container-fluid">
+            <div class="navbar-text pull-left">
+                &{'waves.copyright'}
+            </div>
+        </div>
+    </div>
+</div>
+
+#{script 'jquery.js' /}
+#{script 'bootstrap.min.js' /}
+
+</body>
+</html>
 
 
