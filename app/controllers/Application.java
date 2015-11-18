@@ -266,11 +266,8 @@ public class Application extends Controller {
         if (null == relation && !currentUser().email.equals(email)) {
             redirect(Router.reverse("Application.home").url);
         } else {
-            if (currentUser().email.equals(email)) {
-                List<Sound> sounds = sounds(email);
-                renderArgs.put("sounds", sounds);
-            }
-
+            List<Sound> sounds = sounds(email);
+            renderArgs.put("sounds", sounds);
             renderArgs.put("filesOwner", user(email));
 
             render();
