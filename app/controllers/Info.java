@@ -1,9 +1,14 @@
 package controllers;
 
+import controllers.securesocial.SecureSocial;
+
 import play.mvc.Controller;
+import play.mvc.Router;
 
 /**
  * Controlador encargado de mostrar la informacion basica de la pagina.
+ *
+ * @author Luis Chávez
  */
 public class Info extends Controller {
 
@@ -12,14 +17,10 @@ public class Info extends Controller {
      * Accion que muestra el landing page.
      */
     public static void landing() {
-        render();
+        if (SecureSocial.isUserLoggedIn()) {
+            redirect(Router.reverse("Application.home").url);
+        } else {
+            render();
+        }
     }
-
-    /**
-     * Accion que muestra la informacion acerca de la pagina.
-     */
-    public static void about() {
-        render();
-    }
-
 }

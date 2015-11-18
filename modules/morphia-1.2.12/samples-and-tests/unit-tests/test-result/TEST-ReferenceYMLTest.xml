@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<testsuite failures="0" time="0.329" errors="0" skipped="0" tests="1" name="ReferenceYMLTest">
-  <testcase classname="ReferenceYMLTest" name="testSimpleReference" time="0.329">
-      </testcase>
-</testsuite>

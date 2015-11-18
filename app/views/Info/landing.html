@@ -1,65 +1,57 @@
-#{extends 'main.html' /}
-#{set title:'WAVES' /}
+<!doctype html>
+<html lang="${play.i18n.Lang.get()}">
+<head>
+    <meta charset="${_response_encoding}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-<!-- Full Page Image Background Carousel Header -->
-<header id="myCarousel" class="carousel slide">
-    <!-- Indicators -->
-    <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-    </ol>
+    <title>&{'waves.landing'}</title>
 
-    <!-- Wrapper for Slides -->
-    <div class="carousel-inner">
-        <div class="item active">
-            <br/>
-            <!-- Set the first background image using inline CSS below. -->
-            <div class="fill">
-                <img src="public/images/slide.jpg" class="img-responsive img-circle center-block" alt="WAVES" width="80%">
-            </div>
+    <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
 
-            <div class="carousel-caption">
-                <h2><a href="@{controllers.Waves.home()}">ENTRAR</a></h2>
-            </div>
-        </div>
-    </div>
+    #{stylesheet 'bootstrap.min.css' /}
+    #{stylesheet 'bootstrap-theme.min.css'/}
 
-    <!-- Controls -->
-    <a class="left carousel-control" href="#myCarousel" data-slide="prev">
-        <span class="icon-prev"></span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" data-slide="next">
-        <span class="icon-next"></span>
-    </a>
-
-</header>
-
-<!-- Page Content -->
-<div class="container">
-
-    <div class="row">
-        <div class="col-lg-12">
-            <h2>Misión</h2>
-            WAVES una aplicación web que busca cambiar la forma de llevar tu música.
-            Revolucionar la manera en que escuchas y gestionas tu música.
-
-            <h2>Visión</h2>
-            WAVES busca ser la opción número uno ante las demás en cuanto a su administración de su música.
-            Pionera en la rama musical y referente representante.
-        </div>
-    </div>
-
-    <hr>
-
-    <!-- Footer -->
-    <footer>
-        <div class="row">
-            <div class="col-lg-12">
-                <p>Copyright &copy; WAVES 2015</p>
+</head>
+<body>
+<div id="header">
+    <nav class="navbar navbar-default navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="@{'/public/images/favicon.png'}">
+                </a>
+                <a class="navbar-brand" href="#">&{'waves.header'}</a>
             </div>
         </div>
-        <!-- /.row -->
-    </footer>
-
+    </nav>
 </div>
+
+<div class="container-fluid">
+    <div id="content" class="row">
+        <div class="col-md-12">
+            <img src="public/images/logo.jpg" alt="logo" class="img-rounded center-block">
+            <p>
+                <a href="@{controllers.Application.home}" class="btn btn-large btn-primary center-block">&{'waves.enter'}</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="footer">
+    <div class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="container-fluid">
+            <div class="navbar-text pull-left">
+                &{'waves.copyright'}
+            </div>
+        </div>
+    </div>
+</div>
+
+#{script 'jquery.js' /}
+#{script 'bootstrap.min.js' /}
+
+</body>
+</html>
 
 

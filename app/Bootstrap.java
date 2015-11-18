@@ -1,20 +1,22 @@
 
-import play.*;
-import play.jobs.*;
-import play.test.*;
+import models.User;
 
-import models.*;
+import play.jobs.Job;
+import play.jobs.OnApplicationStart;
+
 import securesocial.provider.ProviderType;
 import securesocial.provider.UserId;
 
 /**
- * Clase encargada de cargar la informacion inicial para las pruebas.
+ * Clase encargada de cargar la informacion inicial de la aplicacion.
+ *
+ * @author Luis Chávez
  */
 @OnApplicationStart
 public class Bootstrap extends Job {
 
     /**
-     * Carga la informacion pre-cargada.
+     * Carga la informacion del administrador.
      */
     public void doJob() {
         // Check if the database is empty

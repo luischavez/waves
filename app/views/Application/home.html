@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set 'title'}&{'waves.home'}#{/set}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.statistics'}
+    </div>
+    <div class="list-group">
+        <p class="list-group-item">
+            <b>&{'waves.friendCount'}:</b><span class="badge">${friendCount}</span>
+        </p>
+        <p class="list-group-item">
+            <b>&{'waves.musicCount'}:</b><span class="badge">${soundCount}</span>
+        </p>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.recent'}
+    </div>
+    <div class="list-group">
+        #{if relation}
+            <p class="list-group-item">
+                #{friend user:user, relation:relation /}
+            </p>
+        #{/if}
+        #{if sound}
+            <p class="list-group-item">
+                #{file user:user, sound:sound /}
+            </p>
+        #{/if}
+    </div>
+</div>
+

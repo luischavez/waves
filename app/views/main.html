@@ -1,31 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="${play.i18n.Lang.get()}">
+<head>
+    <meta charset="${_response_encoding}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-<html>
-    <head>
-        <title>#{get 'title' /}</title>
-        <meta charset="${_response_encoding}">
-        #{stylesheet 'bootstrap.min.css' /}
-        #{stylesheet 'full-slider.css' /}
-        #{get 'moreStyles' /}
-        <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
-    </head>
-    <body>
+    <title>#{get 'title' /}</title>
 
-        #{doLayout /}
+    <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
 
-        <!-- jQuery -->
-        #{script 'jquery.js' /}
+    #{stylesheet 'bootstrap.min.css' /}
+    #{stylesheet 'bootstrap-theme.min.css'/}
 
-        <!-- Bootstrap Core JavaScript -->
-        #{script 'bootstrap.min.js' /}
+    #{get 'moreStyles' /}
+</head>
+<body>
+    <div id="header">
+        <nav class="navbar navbar-default navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">
+                        <img alt="Brand" src="@{'/public/images/favicon.png'}">
+                    </a>
+                    <a class="navbar-brand" href="#">&{'waves.header'}</a>
+                </div>
+                #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
+                    <p class="navbar-text">
+                        &{'waves.welcome', user.displayName}
+                    </p>
+                #{/if}
+            </div>
+        </nav>
+    </div>
 
-        <!-- Script to Activate the Carousel -->
-        <script>
-            $('.carousel').carousel({
-                interval: 5000 //changes the speed
+    #{if flash.contains("error")}
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            ${flash.get("error")}
+        </div>
+    #{/if}
+
+    #{if flash.contains("success")}
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            ${flash.get("success")}
+        </div>
+    #{/if}
+
+    <div class="container-fluid">
+        <div id="content" class="row">
+            <div class="col-md-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">&{'waves.menu'}</div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="@{controllers.Application.home}">&{'waves.homeLink'}</a>
+                        </li>
+                        #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
+                            <li class="list-group-item">
+                                <a href="@{controllers.Application.friends}">&{'waves.friendsLink'}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="@{controllers.Application.files(user.email)}">&{'waves.musicLink'}</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="@{controllers.securesocial.SecureSocial.logout()}">&{'waves.exitLink'}</a>
+                            </li>
+                        #{/if}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                #{doLayout /}
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div class="navbar navbar-inverse navbar-fixed-bottom">
+            <div class="container-fluid">
+                <div class="navbar-text pull-left">
+                    &{'waves.copyright'}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    #{script 'jquery.js' /}
+    #{script 'bootstrap.min.js' /}
+    #{script 'bootstrap-confirmation.min.js'/}}
+
+    <script>
+        (function ($) {
+            $(function(){
+                $('[data-toggle="confirmation"]').confirmation({
+                    btnOkLabel: '&{'waves.confirmOk'}',
+                    btnCancelLabel: '&{'waves.confirmCancel'}',
+                    onConfirm: function(event, element){
+                        window.location = $(element).attr('href');
+                    }
+                });
             })
-        </script>
+        })(jQuery);
+    </script>
 
-        #{get 'moreScripts' /}
-    </body>
+    #{get 'moreScripts' /}
+</body>
 </html>

@@ -1,0 +1,46 @@
+#{extends 'main.html' /}
+#{set 'title'}&{'waves.friends'}#{/set}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.friendRequests'}
+    </div>
+    <div class="list-group">
+    #{list items:friends, as:'relation'}
+        #{if !relation.accepted}
+            <p class="list-group-item">
+                #{friendRequest user:user, relation:relation /}
+            </p>
+        #{/if}
+    #{/list}
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.friendsOf', user.displayName}
+    </div>
+    <div class="panel-body">
+        <form class="form-inline" action="@{controllers.Application.addFriend()}">
+            <div class="form-group">
+                <label class="sr-only" for="email">&{'waves.email'}</label>
+                <div class="input-group">
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                    </div>
+                    <input type="text" class="form-control" name="email" placeholder="&{'waves.email'}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">&{'waves.addFriend'}</button>
+        </form>
+    </div>
+    <div class="list-group">
+    #{list items:friends, as:'relation'}
+        #{if relation.accepted}
+            <p href="" class="list-group-item">
+                #{friend user:user, relation:relation /}
+            </p>
+        #{/if}
+    #{/list}
+    </div>
+</div>
