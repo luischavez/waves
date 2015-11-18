@@ -3,14 +3,18 @@ package controllers;
 import controllers.securesocial.SecureSocial;
 
 import models.User;
+
 import play.mvc.Before;
 import play.mvc.With;
+
 import securesocial.provider.SocialUser;
 
 /**
- * Este controlador es el encargador de manejar la administracion de la pagina.
+ * Este controlador es el encargador de manejar a los usuarios.
+ *
+ * @author Javier Maldonado
  */
-@CRUD.For(models.User.class)
+@CRUD.For(User.class)
 @With(SecureSocial.class)
 public class Users extends CRUD {
 

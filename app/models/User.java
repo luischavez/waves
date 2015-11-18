@@ -9,7 +9,9 @@ import securesocial.provider.UserId;
 import java.util.Date;
 
 /**
- * Modelo para el usuario.
+ * Modelo de los usuarios.
+ *
+ * @author Javier Maldonado
  */
 @Entity
 public class User extends Model {

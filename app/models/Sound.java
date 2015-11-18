@@ -7,7 +7,9 @@ import play.data.validation.Required;
 import play.modules.morphia.Model;
 
 /**
- * Created by frost on 15/11/2015.
+ * Modelo de las canciones.
+ *
+ * @author Javier Maldonado
  */
 @Entity
 public class Sound extends Model {

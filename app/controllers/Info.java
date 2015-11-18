@@ -4,6 +4,8 @@ import play.mvc.Controller;
 
 /**
  * Controlador encargado de mostrar la informacion basica de la pagina.
+ *
+ * @author Luis Chávez
  */
 public class Info extends Controller {
 
