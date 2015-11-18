@@ -13,6 +13,6 @@ import play.mvc.With;
  */
 @CRUD.For(Relation.class)
 @With(SecureSocial.class)
-public class Relations {
+public class Relations extends CRUD {
 
 }

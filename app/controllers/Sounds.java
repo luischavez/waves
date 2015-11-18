@@ -13,6 +13,6 @@ import play.mvc.With;
  */
 @CRUD.For(Sound.class)
 @With(SecureSocial.class)
-public class Sounds {
+public class Sounds extends CRUD {
 
 }
