@@ -312,7 +312,7 @@ public class Application extends Controller {
                 }
                 Files.delete(file);
             } else {
-                flash.error("El archivo [%s] no es valido!");
+                flash.error("El archivo [%s] no es valido!", file.getName());
             }
         }
 
