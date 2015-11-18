@@ -6,4 +6,5 @@ waves_project.iws
 /modules/
 /lib/
 /documentation/
-/test-result/
+/test-result
+/sounds/

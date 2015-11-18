@@ -1,13 +1,6 @@
 package controllers;
 
-import controllers.securesocial.SecureSocial;
-
 import models.User;
-
-import play.mvc.Before;
-import play.mvc.With;
-
-import securesocial.provider.SocialUser;
 
 /**
  * Este controlador es el encargador de manejar a los usuarios.
@@ -15,16 +8,6 @@ import securesocial.provider.SocialUser;
  * @author Javier Maldonado
  */
 @CRUD.For(User.class)
-@With(SecureSocial.class)
-public class Users extends CRUD {
+public class Users extends Admin {
 
-    @Before
-    static void checkAuthentification() {
-        SocialUser user = SecureSocial.getCurrentUser();
-        if (null != user) {
-            if (!"admin@waves.com".equals(user.email)) {
-                SecureSocial.login();
-            }
-        }
-    }
 }
