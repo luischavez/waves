@@ -43,7 +43,7 @@ waves.download=Descargar
 waves.cantPlay=Tu navegador no es compatible con esta característica.
 
 securesocial.loginTitle=Ingresar
-securesocial.login=Ingrear
+securesocial.login=Ingresar
 securesocial.clickOnYourAccount=Usa tu cuenta o una de las siguientes opciones.
 securesocial.useEmailAndPassword=o utiliza tu correo y contraseña.
 securesocial.email=Correo

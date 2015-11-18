@@ -11,9 +11,6 @@
 # Landing page
 GET     /                                       Info.landing
 
-# About page
-GET     /about                                  Info.about
-
 # Home page
 GET     /home                                   Application.home
 

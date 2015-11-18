@@ -1,7 +1,9 @@
 import org.junit.*;
+
 import play.test.*;
 import play.mvc.*;
 import play.mvc.Http.*;
+
 import models.*;
 
 public class ApplicationTest extends FunctionalTest {
@@ -9,7 +11,7 @@ public class ApplicationTest extends FunctionalTest {
     @Test
     public void testAdminSecurity() {
         Response response = GET("/admin");
-        assertStatus(200, response);
+        assertStatus(302, response);
     }
 
     @Test
