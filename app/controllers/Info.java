@@ -12,7 +12,6 @@ import play.mvc.Router;
  */
 public class Info extends Controller {
 
-
     /**
      * Accion que muestra el landing page.
      */
