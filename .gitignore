@@ -1,0 +1,9 @@
+waves_project.iml
+waves_project.ipr
+waves_project.iws
+/.idea/
+/tmp/
+/modules/
+/lib/
+/documentation/
+/test-result/
