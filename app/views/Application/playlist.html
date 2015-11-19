@@ -47,7 +47,7 @@
             var tracks = $(".sound");
             var current = 0;
 
-            len = tracks.length - 1;
+            len = tracks.length;
 
             console.log(tracks.length);
 
@@ -55,11 +55,11 @@
             audio[0].play();
 
             function run(link, player){
-                $('#name').text(link.text());
+                $('#name').text($(link).text());
                 $(link).parent().parent().addClass('active');
                 $(link).parent().parent().siblings().removeClass('active');
 
-                player.src = link.attr('href');
+                player.src = $(link).attr('href');
 
                 audio[0].load();
                 audio[0].play();
@@ -67,10 +67,10 @@
 
             audio[0].addEventListener('ended', function(e){
                 current++;
-                if(current == len){
+                if (current == len){
                     current = 0;
                     link = tracks[0];
-                }else{
+                } else{
                     link = tracks[current];
                 }
                 run(link, audio[0]);
