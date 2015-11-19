@@ -517,22 +517,29 @@ public class Application extends Controller {
      * @param soundId identificador de la cancion.
      */
     public static void addToPlaylist(@Required String playlistId, @Required String soundId) {
-        Playlist playlist = list(playlistId);
-        Sound sound = sound(soundId);
+        if (!Validation.hasErrors()) {
+            Playlist playlist = list(playlistId);
+            Sound sound = sound(soundId);
 
-        if (null == playlist || null == sound) {
-            redirect(Router.reverse("Application.home").url);
-        } else {
-            if (playlist.owner.email.equals(currentUser().email)
-                    && sound.owner.email.equals(currentUser().email)) {
-                playlist.sounds.add(sound);
-                playlist.save();
-                flash.success("Se agrego correctamente la cancion [%s] a la lista de reproduccion [%s]", sound.name, playlist.name);
+            if (null == playlist || null == sound) {
+                redirect(Router.reverse("Application.home").url);
+            } else {
+                if (playlist.owner.email.equals(currentUser().email)
+                        && sound.owner.email.equals(currentUser().email)) {
+                    playlist.sounds.add(sound);
+                    playlist.save();
+                    flash.success("Se agrego correctamente la cancion [%s] a la lista de reproduccion [%s]", sound.name, playlist.name);
+                }
+                Map<String, Object> args = new HashMap<>();
+                args.put("playlistId", playlist.getId());
+
+                redirect(Router.reverse("Application.playlist", args).url);
             }
+        } else {
             Map<String, Object> args = new HashMap<>();
-            args.put("playlistId", playlist.getId());
+            args.put("email", currentUser().email);
 
-            redirect(Router.reverse("Application.playlist", args).url);
+            redirect(Router.reverse("Application.playlists", args).url);
         }
     }
 
@@ -545,22 +552,29 @@ public class Application extends Controller {
      * @param soundId identificador de la cancion.
      */
     public static void removeFromPlaylist(@Required String playlistId, @Required String soundId) {
-        Playlist playlist = list(playlistId);
-        Sound sound = sound(soundId);
+        if (!Validation.hasErrors()) {
+            Playlist playlist = list(playlistId);
+            Sound sound = sound(soundId);
 
-        if (null == playlist || null == sound) {
-            redirect(Router.reverse("Application.home").url);
-        } else {
-            if (playlist.owner.email.equals(currentUser().email)
-                    && sound.owner.email.equals(currentUser().email)) {
-                playlist.sounds.remove(sound);
-                playlist.save();
-                flash.success("Se elimino correctamente la cancion [%s] de la lista de reproduccion [%s]", sound.name, playlist.name);
+            if (null == playlist || null == sound) {
+                redirect(Router.reverse("Application.home").url);
+            } else {
+                if (playlist.owner.email.equals(currentUser().email)
+                        && sound.owner.email.equals(currentUser().email)) {
+                    playlist.sounds.remove(sound);
+                    playlist.save();
+                    flash.success("Se elimino correctamente la cancion [%s] de la lista de reproduccion [%s]", sound.name, playlist.name);
+                }
+                Map<String, Object> args = new HashMap<>();
+                args.put("playlistId", playlist.getId());
+
+                redirect(Router.reverse("Application.playlist", args).url);
             }
+        } else {
             Map<String, Object> args = new HashMap<>();
-            args.put("playlistId", playlist.getId());
+            args.put("email", currentUser().email);
 
-            redirect(Router.reverse("Application.playlist", args).url);
+            redirect(Router.reverse("Application.playlists", args).url);
         }
     }
 
@@ -570,18 +584,19 @@ public class Application extends Controller {
      * @param name nombre del archivo a buscar.
      */
     public static void searchFile(String playlistId, String name) {
-        Playlist playlist = list(playlistId);
-        List<Sound> sounds = sounds(currentUser().email);
-
         List<Search> searches = new ArrayList<>();
-        if (null != playlist) {
-            for (Sound sound : sounds) {
-                if (!playlist.sounds.contains(sound)) {
-                    searches.add(new Search(sound.getId().toString(), sound.name));
+        if (null != playlistId && !playlistId.isEmpty()) {
+            Playlist playlist = list(playlistId);
+            List<Sound> sounds = sounds(currentUser().email);
+
+            if (null != playlist) {
+                for (Sound sound : sounds) {
+                    if (!playlist.sounds.contains(sound) && sound.name.toLowerCase().contains(name.toLowerCase())) {
+                        searches.add(new Search(sound.getId().toString(), sound.name));
+                    }
                 }
             }
         }
-
         renderJSON(searches);
     }
 
