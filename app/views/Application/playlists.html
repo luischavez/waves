@@ -1,0 +1,25 @@
+#{extends 'main.html' /}
+#{set 'title'}&{'waves.playlists'}#{/set}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.listsOwner', listsOwner.displayName}
+    </div>
+    #{if user.email.equals(listsOwner.email)}
+        <div class="panel-body">
+            #{form @Application.createPlaylist(), class:'form-inline'}
+                <div class="form-group">
+                    <input type="text" name="name" />
+                </div>
+                <button type="submit" class="btn btn-primary">&{'waves.createList'}</button>
+            #{/form}
+        </div>
+    #{/if}
+    <div class="list-group">
+        #{list items:playlists, as:'playlist'}
+            <p class="list-group-item">
+                #{playlist user:user, playlist:playlist /}
+            </p>
+        #{/list}
+    </div>
+</div>

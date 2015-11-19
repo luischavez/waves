@@ -32,6 +32,27 @@ POST    /upload                                 Application.uploadFile
 # Delete sound
 GET     /delete                                 Application.deleteFile
 
+# Search sound
+GET     /sounds.json                            Application.searchFile
+
+# Playlists
+GET     /playlists                              Application.playlists
+
+# Playlist
+GET     /playlist                               Application.playlist
+
+# Create playlist
+GET     /playlist/create                        Application.createPlaylist
+
+# Delete playlist
+GET     /playlist/delete                        Application.deletePlaylist
+
+# Add to playlist
+GET     /playlist/add                           Application.addToPlaylist
+
+# Remove from playlist
+GET     /playlist/remove                        Application.removeFromPlaylist
+
 # Friend list
 GET     /friends                                Application.friends
 

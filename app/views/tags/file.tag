@@ -7,7 +7,7 @@ ${_sound.name}
     <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
     &{'waves.download'}
 </a>
-#{if _user.email.equals(_sound.user.email)}
+#{if _user.email.equals(_sound.owner.email)}
     <a href="@{controllers.Application.deleteFile(_sound.id)}" class="btn btn-warning" data-toggle="confirmation" data-original-title="" title="&{'waves.confirm'}">
         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
         &{'waves.deleteSound'}

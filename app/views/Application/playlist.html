@@ -1,0 +1,155 @@
+#{extends 'main.html' /}
+#{set 'title'}&{'waves.playlist', playlist.name}#{/set}
+
+#{set 'moreStyles'}
+    <style>
+        .active p a {
+            color: white;
+        }
+    </style>
+#{/set}
+
+#{set 'moreScripts'}
+    <script>
+
+        (function($){
+            var $input = $('#search');
+            $input.typeahead({
+                source: function(query, process) {
+                    return $.get('sounds.json?playlistId=' + $('#playlist').val() + '&name=' + query, function (data) {
+                        return process(data);
+                    });
+                },
+                afterSelect: function(item) {
+                    $('#sound').val(item.id);
+                },
+                autoSelect: true
+            });
+            $input.change(function() {
+                var current = $input.typeahead("getActive");
+                if (current) {
+                    // Some item from your model is active!
+                    if (current.name == $input.val()) {
+                        // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+                    } else {
+                        // This means it is only a partial match, you can either add a new item
+                        // or take the active if you don't want new items
+                    }
+                } else {
+                    // Nothing is active so it is a new value (or maybe empty value)
+                }
+            });
+        })(jQuery);
+
+        (function($){
+            var audio = $('#audio');
+
+            var tracks = $(".sound");
+            var current = 0;
+
+            len = tracks.length - 1;
+
+            console.log(tracks.length);
+
+            audio[0].volume = .20;
+            audio[0].play();
+
+            function run(link, player){
+                $('#name').text(link.text());
+                $(link).parent().parent().addClass('active');
+                $(link).parent().parent().siblings().removeClass('active');
+
+                player.src = link.attr('href');
+
+                audio[0].load();
+                audio[0].play();
+            }
+
+            audio[0].addEventListener('ended', function(e){
+                current++;
+                if(current == len){
+                    current = 0;
+                    link = tracks[0];
+                }else{
+                    link = tracks[current];
+                }
+                run(link, audio[0]);
+            });
+
+            tracks.click(function(e) {
+                e.preventDefault();
+                link = $(this);
+                current = link.parent().index();
+                run(link, audio[0]);
+            });
+        })(jQuery);
+
+    </script>
+#{/set}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        ${playlist.name}
+    </div>
+    <div class="panel-body">
+        #{if user.email.equals(playlist.owner.email)}
+            #{form @Application.addToPlaylist(), class:'form-inline'}
+                <div class="form-group">
+                    <input id="search" data-provide="typeahead" type="text" class="form-control input-lg" autocomplete="off" />
+                    <input id="sound" type="hidden" name="soundId">
+                    <input id="playlist" type="hidden" name="playlistId" value="${playlist.getId()}">
+                </div>
+                <button type="submit" class="btn btn-primary">&{'waves.addToPlaylist'}</button>
+            #{/form}
+        #{/if}
+    </div>
+    <h2 id="name" class="text-center">
+        #{if !playlist.sounds.isEmpty()}
+            ${playlist.sounds.get(0).name}
+        #{/if}
+    </h2>
+    <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg" style="width: 100%;">
+        #{if !playlist.sounds.isEmpty()}
+            <source type="audio/mp3" src="@{controllers.Application.download(playlist.sounds.get(0).id)}">
+        #{/if}
+        &{'waves.cantPlay'}
+    </audio>
+    <ul id="playlist" class="list-group">
+        #{list items:playlist.sounds, as:'sound'}
+            #{if sound_isFirst}
+                <li class="list-group-item active">
+                    <p>
+                        <a href="@{controllers.Application.download(sound.id)}" class="sound">${sound.name}</a>
+                    </p>
+                    <a href="@{controllers.Application.download(sound.id)}" class="btn btn-default">
+                        <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                        &{'waves.download'}
+                    </a>
+                    #{if user.email.equals(sound.owner.email)}
+                        <a href="@{controllers.Application.removeFromPlaylist(playlist.id, sound.id)}" class="btn btn-warning" data-toggle="confirmation" data-original-title="" title="&{'waves.confirm'}">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            &{'waves.removeFromPlaylist'}
+                        </a>
+                    #{/if}
+                </li>
+            #{/if}
+            #{else}
+                <li class="list-group-item">
+                    <p>
+                        <a href="@{controllers.Application.download(sound.id)}" class="sound">${sound.name}</a>
+                    </p>
+                    <a href="@{controllers.Application.download(sound.id)}" class="btn btn-default">
+                        <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+                        &{'waves.download'}
+                    </a>
+                    #{if user.email.equals(sound.owner.email)}
+                        <a href="@{controllers.Application.removeFromPlaylist(playlist.id, sound.id)}" class="btn btn-warning" data-toggle="confirmation" data-original-title="" title="&{'waves.confirm'}">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            &{'waves.removeFromPlaylist'}
+                        </a>
+                    #{/if}
+                </li>
+            #{/else}
+        #{/list}
+    </ul>
+</div>

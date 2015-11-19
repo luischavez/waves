@@ -4,6 +4,8 @@ waves.landing=Waves
 waves.home=Inicio
 waves.friends=Amigos
 waves.music=Musica
+waves.playlists=Listas de reproducion
+waves.playlist=::%s::
 waves.stream=::%s::
 
 waves.welcome=Bienvenido! %s
@@ -16,7 +18,7 @@ waves.confirmCancel=No
 waves.menu=Menu
 waves.homeLink=Inicio
 waves.friendsLink=Amigos
-waves.musicLink=Mi musica!
+waves.musicLink=Mi musica
 waves.exitLink=Salir
 
 waves.enter=Entrar
@@ -25,6 +27,13 @@ waves.musicOwner=Musica [%s]
 waves.uploadSound=Subir
 waves.playSound=Reproducir
 waves.deleteSound=Eliminar
+
+waves.listsOwner=Lista [%s]
+waves.createList=Crear lista
+waves.showPlaylist=Ver lista
+waves.deletePlaylist=Borrar lista
+waves.addToPlaylist=Agregar a la lista
+waves.removeFromPlaylist=Remover de la lista
 
 waves.friendRequests=Solicitudes de amistad
 waves.friendsOf=Amigos de %s
