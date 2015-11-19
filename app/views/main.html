@@ -68,6 +68,9 @@
                                 <a href="@{controllers.Application.files(user.email)}">&{'waves.musicLink'}</a>
                             </li>
                             <li class="list-group-item">
+                                <a href="@{controllers.Application.playlists(user.email)}">&{'waves.playlists'}</a>
+                            </li>
+                            <li class="list-group-item">
                                 <a href="@{controllers.securesocial.SecureSocial.logout()}">&{'waves.exitLink'}</a>
                             </li>
                         #{/if}
@@ -92,7 +95,8 @@
 
     #{script 'jquery.js' /}
     #{script 'bootstrap.min.js' /}
-    #{script 'bootstrap-confirmation.min.js'/}}
+    #{script 'bootstrap-confirmation.min.js'/}
+    #{script 'bootstrap3-typeahead.min.js'/}
 
     <script>
         (function ($) {

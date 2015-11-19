@@ -2,16 +2,20 @@ package controllers;
 
 import controllers.securesocial.SecureSocial;
 
+import models.Playlist;
 import models.Relation;
 import models.Sound;
 import models.User;
 
 import org.bson.types.ObjectId;
 
+import play.data.validation.MaxSize;
+import play.data.validation.MinSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.Files;
 import play.libs.MimeTypes;
+import play.modules.morphia.Model;
 import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
@@ -21,6 +25,7 @@ import securesocial.provider.SocialUser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,30 +106,30 @@ public class Application extends Controller {
      * @return lista de musica.
      */
     static List<Sound> sounds(String email) {
-        return Sound.find("user", user(email)).order("-_created").asList();
+        return Sound.find("owner", user(email)).order("-_created").asList();
     }
 
     /**
      * Obtiene la cancion con el identificador especificado.
      *
-     * @param id identificador
+     * @param soundId identificador
      * @return cancion o null si no existe.
      */
-    static Sound sound(String id) {
+    static Sound sound(String soundId) {
         User currentUser = currentUser();
         List<Relation> relations = relations();
 
-        Sound sound = Sound.find("_id", new ObjectId(id)).first();
+        Sound sound = Sound.find("_id", new ObjectId(soundId)).first();
 
-        if (null != sound && currentUser.email.equals(sound.user.email)) {
+        if (null != sound && currentUser.email.equals(sound.owner.email)) {
             return sound;
         }
 
         boolean valid = false;
         if (null != sound) {
             for (Relation relation : relations) {
-                if (relation.friend.email.equals(sound.user.email)
-                        || relation.user.email.equals(sound.user.email)) {
+                if (relation.friend.email.equals(sound.owner.email)
+                        || relation.user.email.equals(sound.owner.email)) {
                     valid = true;
                     break;
                 }
@@ -132,6 +137,46 @@ public class Application extends Controller {
         }
 
         return valid ? sound : null;
+    }
+
+    /**
+     * Obtine las listas de reproduccion de un usuario especifico.
+     *
+     * @param email correo del ususario.
+     * @return listas de reproduccion.
+     */
+    static List<Playlist> lists(String email) {
+        return Playlist.find("owner", user(email)).order("-_created").asList();
+    }
+
+    /**
+     * Obtiene la lista de reproduccion con el identificador especificado.
+     *
+     * @param playlistId identificador
+     * @return lista de reproduccion o null si no existe.
+     */
+    static Playlist list(String playlistId) {
+        User currentUser = currentUser();
+        List<Relation> relations = relations();
+
+        Playlist playlist = Playlist.find("_id", new ObjectId(playlistId)).first();
+
+        if (null != playlist && currentUser.email.equals(playlist.owner.email)) {
+            return playlist;
+        }
+
+        boolean valid = false;
+        if (null != playlist) {
+            for (Relation relation : relations) {
+                if (relation.friend.email.equals(playlist.owner.email)
+                        || relation.user.email.equals(playlist.owner.email)) {
+                    valid = true;
+                    break;
+                }
+            }
+        }
+
+        return valid ? playlist : null;
     }
 
     /**
@@ -327,11 +372,17 @@ public class Application extends Controller {
      *
      * Solo se eliminara si la cancion existe.
      *
-     * @param id identificador
+     * @param soundId identificador
      */
-    public static void deleteFile(@Required String id) {
-        Sound sound = sound(id);
+    public static void deleteFile(@Required String soundId) {
+        Sound sound = sound(soundId);
         if (null != sound) {
+            List<Playlist> playlists = Playlist.q().filter("sounds in", sound).asList();
+            for (Playlist playlist : playlists) {
+                playlist.sounds.remove(sound);
+                playlist.save();
+            }
+
             Files.delete(new File(sound.path));
             sound.delete();
             flash.success("Se elimino correctamente el archivo [%s]", sound.name);
@@ -348,10 +399,10 @@ public class Application extends Controller {
      *
      * Solo se mostrara si la cancion existe.
      *
-     * @param id identificador
+     * @param soundId identificador
      */
-    public static void streamFile(@Required String id) {
-        Sound sound = sound(id);
+    public static void streamFile(@Required String soundId) {
+        Sound sound = sound(soundId);
         if (null == sound) {
             Map<String, Object> args = new HashMap<>();
             args.put("email", currentUser().email);
@@ -369,12 +420,180 @@ public class Application extends Controller {
      *
      * Solo se decargara si la cancion existe.
      *
-     * @param id identificador.
+     * @param soundId identificador.
      */
-    public static void download(@Required String id) {
-        Sound sound = sound(id);
+    public static void download(@Required String soundId) {
+        Sound sound = sound(soundId);
         if (null != sound) {
-            renderBinary(new File(sound.path));
+            renderBinary(new File(sound.path), sound.name);
+        }
+    }
+
+    /**
+     * Accion que muestra las listas de reproduccion del usuario especificado.
+     *
+     * Solo se mostraran si el usuario es valido.
+     *
+     * @param email correo del usuario.
+     */
+    public static void playlists(@Required String email) {
+        Relation relation = relation(email);
+
+        if (null == relation && !currentUser().email.equals(email)) {
+            redirect(Router.reverse("Application.home").url);
+        } else {
+            List<Playlist> playlists = lists(email);
+            renderArgs.put("playlists", playlists);
+            renderArgs.put("listsOwner", user(email));
+
+            render();
+        }
+    }
+
+    /**
+     * Accion que muestra la lista de reproduccion con el identificador especificado.
+     *
+     * @param playlistId identificador.
+     */
+    public static void playlist(@Required String playlistId) {
+        Playlist playlist = list(playlistId);
+        if (null == playlist) {
+            Map<String, Object> args = new HashMap<>();
+            args.put("email", currentUser().email);
+
+            redirect(Router.reverse("Application.playlists", args).url);
+        } else {
+            renderArgs.put("playlist", playlist);
+
+            render();
+        }
+    }
+
+    /**
+     * Accion que crea una nueva lista de reproduccion con el nombre especificado.
+     *
+     * @param name nombre de la lista de reproduccion.
+     */
+    public static void createPlaylist(@Required @MinSize(5) @MaxSize(20) String name) {
+        if (Validation.hasErrors()) {
+            flash.error("No se pudo crear la lista de reproduccion [%s], el nombre debe de contener entre 5 y 20 caracteres", name);
+        } else {
+            Playlist playlist = new Playlist(name, currentUser());
+            playlist.save();
+            flash.success("Se creo correctamente la lista de reproduccion [%s]", name);
+        }
+
+        Map<String, Object> args = new HashMap<>();
+        args.put("email", currentUser().email);
+
+        redirect(Router.reverse("Application.playlists", args).url);
+    }
+
+    /**
+     * Accion que crea elimina una lista de reproduccion con el identificador especificado.
+     *
+     * @param playlistId identificador de la lista de reproduccion.
+     */
+    public static void deletePlaylist(@Required String playlistId) {
+        Playlist playlist = list(playlistId);
+
+        if (null != playlist && playlist.owner.email.equals(currentUser().email)) {
+            playlist.delete();
+            flash.success("Se elimino correctamente  la lista de reproduccion [%s]", playlist.name);
+        }
+
+        Map<String, Object> args = new HashMap<>();
+        args.put("email", currentUser().email);
+
+        redirect(Router.reverse("Application.playlists", args).url);
+    }
+
+    /**
+     * Accion que agrega una cancion a una lista de reproduccion.
+     *
+     * Solo se agregara si la lista y la cancion existen y son validas.
+     *
+     * @param playlistId identificador de la lista de reproduccion.
+     * @param soundId identificador de la cancion.
+     */
+    public static void addToPlaylist(@Required String playlistId, @Required String soundId) {
+        Playlist playlist = list(playlistId);
+        Sound sound = sound(soundId);
+
+        if (null == playlist || null == sound) {
+            redirect(Router.reverse("Application.home").url);
+        } else {
+            if (playlist.owner.email.equals(currentUser().email)
+                    && sound.owner.email.equals(currentUser().email)) {
+                playlist.sounds.add(sound);
+                playlist.save();
+                flash.success("Se agrego correctamente la cancion [%s] a la lista de reproduccion [%s]", sound.name, playlist.name);
+            }
+            Map<String, Object> args = new HashMap<>();
+            args.put("playlistId", playlist.getId());
+
+            redirect(Router.reverse("Application.playlist", args).url);
+        }
+    }
+
+    /**
+     * Accion que elimina una cancion de una lista de reproduccion.
+     *
+     * Solo se eliminara si la lista y la cancion existen y son validas.
+     *
+     * @param playlistId identificador de la lista de reproduccion.
+     * @param soundId identificador de la cancion.
+     */
+    public static void removeFromPlaylist(@Required String playlistId, @Required String soundId) {
+        Playlist playlist = list(playlistId);
+        Sound sound = sound(soundId);
+
+        if (null == playlist || null == sound) {
+            redirect(Router.reverse("Application.home").url);
+        } else {
+            if (playlist.owner.email.equals(currentUser().email)
+                    && sound.owner.email.equals(currentUser().email)) {
+                playlist.sounds.remove(sound);
+                playlist.save();
+                flash.success("Se elimino correctamente la cancion [%s] de la lista de reproduccion [%s]", sound.name, playlist.name);
+            }
+            Map<String, Object> args = new HashMap<>();
+            args.put("playlistId", playlist.getId());
+
+            redirect(Router.reverse("Application.playlist", args).url);
+        }
+    }
+
+    /**
+     * Accion ajax que realiza una busqueda de archivos.
+     *
+     * @param name nombre del archivo a buscar.
+     */
+    public static void searchFile(String playlistId, String name) {
+        Playlist playlist = list(playlistId);
+        List<Sound> sounds = sounds(currentUser().email);
+
+        List<Search> searches = new ArrayList<>();
+        if (null != playlist) {
+            for (Sound sound : sounds) {
+                if (!playlist.sounds.contains(sound)) {
+                    searches.add(new Search(sound.getId().toString(), sound.name));
+                }
+            }
+        }
+
+        renderJSON(searches);
+    }
+
+    public static class Search implements Serializable {
+
+        public String id;
+
+        public String name;
+
+        public Search(String id, String name) {
+            this.id = id;
+            this.name = name;
         }
     }
 }
