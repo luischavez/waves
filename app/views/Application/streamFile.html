@@ -23,7 +23,7 @@
         </a>
     </div>
     <div class="panel-body text-center">
-        <audio controls style="width: 100%;">
+        <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg" style="width: 100%;">
             <source src="@{controllers.Application.download(sound.id)}" type="audio/mpeg" />
             &{'waves.cantPlay'}
         </audio>
