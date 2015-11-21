@@ -44,12 +44,37 @@ waves.cancelRequest=Cancel
 waves.email=Email
 
 waves.statistics=Statistics
-waves.recent=Recent
 waves.friendCount=Friends
 waves.musicCount=Music
 
 waves.download=Download
 waves.cantPlay=Browser not compatible.
+
+waves.error.invalid=An error occurred, could not complete the action.
+waves.error.acceptFriend=There is no relationship for the user [%s].
+waves.error.addFriend=A request for user [% s] already exists.
+waves.error.removeFriend=There is no relationship for the user [%s].
+waves.error.files=You do not have the necessary permissions.
+waves.error.upload=The file [%s] is invalid.
+waves.error.deleteFile=You are not authorized to access the file.
+waves.error.streamFile=You are not authorized to access the file.
+waves.error.download=You are not authorized to access the file.
+waves.error.playlists=You do not have the necessary permissions.
+waves.error.playlist=You do not have the necessary permissions.
+waves.error.createPlaylist=The name [%s] is not valid, it must contain between 5 and 20 characters.
+waves.error.deletePlaylist=You do not have the necessary permissions.
+waves.error.addToPlaylist=You do not have the necessary permissions.
+waves.error.removeFromPlaylist=You do not have the necessary permissions.
+
+waves.success.acceptFriend=The user [%s] is added to your list of friends.
+waves.success.addFriend=The request is sent to the user [%s].
+waves.success.removeFriend=The user [%s] is removed from your list of friends.
+waves.success.upload=File [%s] was uploaded correctly.
+waves.success.deleteFile=The file [%s] was deleted successfully.
+waves.success.createPlaylist=Playlist [%s] was created successfully.
+waves.success.deletePlaylist=The list [%s] was successfully removed.
+waves.success.addToPlaylist=The file [%s] is added to the list [%s].
+waves.success.removeFromPlaylist=The file [%s] is removed from the list [%s].
 
 securesocial.loginTitle=Log In
 securesocial.login=Log In

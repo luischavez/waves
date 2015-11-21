@@ -17,19 +17,31 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        &{'waves.recent'}
+        &{'waves.friendsOf', user.displayName}
     </div>
     <div class="list-group">
-        #{if relation}
-            <p class="list-group-item">
-                #{friend user:user, relation:relation /}
-            </p>
-        #{/if}
-        #{if sound}
-            <p class="list-group-item">
-                #{file user:user, sound:sound /}
-            </p>
-        #{/if}
+        #{list items:friends, as:'relation'}
+            #{if relation.accepted && relation_index < MAX_RECENT_FRIENDS}
+                <p href="" class="list-group-item">
+                    #{friend user:user, relation:relation /}
+                </p>
+            #{/if}
+        #{/list}
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.musicOwner', user.displayName}
+    </div>
+    <div class="list-group">
+        #{list items:sounds, as:'sound'}
+            #{if sound_index < MAX_RECENT_SOUNDS}
+                <p class="list-group-item">
+                    #{file user:user, sound:sound/}
+                </p>
+            #{/if}
+        #{/list}
     </div>
 </div>
 

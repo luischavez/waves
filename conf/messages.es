@@ -44,12 +44,37 @@ waves.cancelRequest=Cancelar
 waves.email=Correo
 
 waves.statistics=Estadisticas
-waves.recent=Reciente
 waves.friendCount=Amigos
 waves.musicCount=Musica
 
 waves.download=Descargar
 waves.cantPlay=Tu navegador no es compatible con esta característica.
+
+waves.error.invalid=Ocurrió un error, no se pudo completar la acción.
+waves.error.acceptFriend=No existe una relación en espera para el usuario [%s].
+waves.error.addFriend=Ya existe una solicitud para el usuario [%s] en espera.
+waves.error.removeFriend=No existe una relación en espera para el usuario [%s].
+waves.error.files=No tienes los permisos necesarios.
+waves.error.upload=El archivo [%s] no es válido.
+waves.error.deleteFile=No tienes permisos para acceder al archivo.
+waves.error.streamFile=No tienes permisos para acceder al archivo.
+waves.error.download=No tienes permisos para acceder al archivo.
+waves.error.playlists=No tienes los permisos necesarios.
+waves.error.playlist=No tienes los permisos necesarios.
+waves.error.createPlaylist=El nombre [%s] no es válido, tiene que contener entre 5 y 20 caracteres.
+waves.error.deletePlaylist=No tienes los permisos necesarios.
+waves.error.addToPlaylist=No tienes los permisos necesarios.
+waves.error.removeFromPlaylist=No tienes los permisos necesarios.
+
+waves.success.acceptFriend=El usuario [%s] se agregó a tu lista de amigos.
+waves.success.addFriend=Se envío la solicitud al usuario [%s]
+waves.success.removeFriend=El usuario [%s] se eliminó de tu lista de amigos.
+waves.success.upload=El archivo [%s] se subió correctamente.
+waves.success.deleteFile=El archivo [%s] se eliminó correctamente.
+waves.success.createPlaylist=Se creo correctamente la lista de reproducción [%s].
+waves.success.deletePlaylist=Se eliminó correctamente la lista.
+waves.success.addToPlaylist=El archivo [%s] se agregó a la lista [%s].
+waves.success.removeFromPlaylist=El archivo [%s] se removió de la lista [%s].
 
 securesocial.loginTitle=Ingresar
 securesocial.login=Ingresar
