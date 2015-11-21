@@ -4,7 +4,7 @@ waves.landing=Waves
 waves.home=Inicio
 waves.friends=Amigos
 waves.music=Musica
-waves.playlists=Listas de reproducion
+waves.playlists=Listas de reproduccion
 waves.playlist=::%s::
 waves.stream=::%s::
 
