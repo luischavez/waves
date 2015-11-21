@@ -142,12 +142,10 @@
                         <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
                         &{'waves.download'}
                     </a>
-                    #{if user.email.equals(sound.owner.email)}
-                        <a href="@{controllers.Application.removeFromPlaylist(playlist.id, sound.id)}" class="btn btn-warning" data-toggle="confirmation" data-original-title="" title="&{'waves.confirm'}">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            &{'waves.removeFromPlaylist'}
-                        </a>
-                    #{/if}
+                    <a href="@{controllers.Application.removeFromPlaylist(playlist.id, sound.id)}" class="btn btn-warning" data-toggle="confirmation" data-original-title="" title="&{'waves.confirm'}">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        &{'waves.removeFromPlaylist'}
+                    </a>
                 </li>
             #{/else}
         #{/list}
