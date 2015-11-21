@@ -19,6 +19,8 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Router;
 
+import play.mvc.With;
+
 import securesocial.provider.SocialUser;
 
 import java.io.File;
@@ -29,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@With(SecureSocial.class)
 public class Application extends Controller {
 
     // Carpeta donde se almacenara la musica.
