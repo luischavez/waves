@@ -53,7 +53,7 @@ public class Application extends Controller {
          */
         static User user(String email) {
             SocialUser currentUser = SecureSocial.getCurrentUser();
-            return User.find("email", currentUser.email).first();
+            return User.find("email", email).first();
         }
 
         /**
@@ -771,7 +771,7 @@ public class Application extends Controller {
      *
      * @param name nombre de la lista de reproduccion.
      */
-    public static void createPlaylist(@Required @MinSize(5) @MaxSize(20) String name) {
+    public static void createPlaylist(@Required @MinSize(2) @MaxSize(20) String name) {
         if (Validation.hasErrors()) {
             Out.error(play.i18n.Messages.get("waves.error.createPlaylist", name));
             Redirects.back();
