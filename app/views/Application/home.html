@@ -1,35 +1,47 @@
 #{extends 'main.html' /}
-#{set title:'Inicio' /}
+#{set 'title'}&{'waves.home'}#{/set}
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Estadisticas
+        &{'waves.statistics'}
     </div>
     <div class="list-group">
         <p class="list-group-item">
-            <b>Amigos:</b><span class="badge">${friendCount}</span>
+            <b>&{'waves.friendCount'}:</b><span class="badge">${friendCount}</span>
         </p>
         <p class="list-group-item">
-            <b>Musica:</b><span class="badge">${soundCount}</span>
+            <b>&{'waves.musicCount'}:</b><span class="badge">${soundCount}</span>
         </p>
     </div>
 </div>
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Mas reciente
+        &{'waves.friendsOf', user.displayName}
     </div>
     <div class="list-group">
-        #{if relation}
-            <p class="list-group-item">
-                #{friend user:user, relation:relation /}
-            </p>
-        #{/if}
-        #{if sound}
-            <p class="list-group-item">
-                #{file user:user, sound:sound /}
-            </p>
-        #{/if}
+        #{list items:friends, as:'relation'}
+            #{if relation.accepted && relation_index < MAX_RECENT_FRIENDS}
+                <p href="" class="list-group-item">
+                    #{friend user:user, relation:relation /}
+                </p>
+            #{/if}
+        #{/list}
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.musicOwner', user.displayName}
+    </div>
+    <div class="list-group">
+        #{list items:sounds, as:'sound'}
+            #{if sound_index < MAX_RECENT_SOUNDS}
+                <p class="list-group-item">
+                    #{file user:user, sound:sound/}
+                </p>
+            #{/if}
+        #{/list}
     </div>
 </div>
 

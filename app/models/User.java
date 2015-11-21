@@ -1,14 +1,17 @@
 package models;
 
-import com.google.code.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Entity;
 
 import play.modules.morphia.Model;
+
 import securesocial.provider.UserId;
 
 import java.util.Date;
 
 /**
- * Modelo para el usuario.
+ * Modelo de los usuarios.
+ *
+ * @author Javier Maldonado
  */
 @Entity
 public class User extends Model {

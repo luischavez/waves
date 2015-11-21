@@ -1,9 +1,9 @@
 #{extends 'main.html' /}
-#{set title:'Musica' /}
+#{set 'title'}&{'waves.music'}#{/set}
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        Musica de ${filesOwner.displayName}
+        &{'waves.musicOwner', filesOwner.displayName}
     </div>
     #{if user.email.equals(filesOwner.email)}
         <div class="panel-body">
@@ -11,7 +11,7 @@
                 <div class="form-group">
                     <input type="file" name="file" />
                 </div>
-                <button type="submit" class="btn btn-primary">Subir</button>
+                <button type="submit" class="btn btn-primary">&{'waves.uploadSound'}</button>
             #{/form}
         </div>
     #{/if}

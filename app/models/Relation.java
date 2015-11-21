@@ -1,14 +1,15 @@
 package models;
 
-import com.google.code.morphia.annotations.Entity;
-import com.google.code.morphia.annotations.Reference;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Reference;
 
 import play.data.validation.Required;
-
 import play.modules.morphia.Model;
 
 /**
- * Created by frost on 15/11/2015.
+ * Modelo de las relaciones.
+ *
+ * @author Javier Maldonado
  */
 @Entity
 public class Relation extends Model {

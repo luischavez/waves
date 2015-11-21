@@ -3,5 +3,13 @@
 require:
     - play
     - play -> crud
-    - play -> morphia 1.2.12
     - play -> securesocial 0.2.6
+    - com.gelinsoft -> play-morphia 1.5.0b
+    - com.dropbox.core -> dropbox-core-sdk 1.8.2
+
+repositories:
+    - gelinsoft:
+        type: http
+        artifact: "http://gelinsoft.com/play/repo/[module]-[revision].zip"
+        contains:
+            - com.gelinsoft -> *

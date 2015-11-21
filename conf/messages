@@ -1,3 +1,112 @@
-# You can specialize this file for each language.
-# For example, for French create a messages.fr file
-#
+waves.header=Waves
+
+waves.landing=Waves
+waves.home=Home
+waves.friends=Friends
+waves.music=Music
+waves.playlists=Playlists
+waves.playlist=::%s::
+waves.stream=::%s::
+
+waves.welcome=Welcome! %s
+waves.copyright=Waves ©2015
+
+waves.confirm=¿Are you sure?
+waves.confirmOk=Yes
+waves.confirmCancel=No
+
+waves.menu=Menu
+waves.homeLink=Home
+waves.friendsLink=Friend
+waves.musicLink=My music
+waves.exitLink=Exit
+
+waves.enter=Enter
+
+waves.musicOwner=Music [%s]
+waves.uploadSound=Upload
+waves.playSound=Play
+waves.deleteSound=Delete
+
+waves.listsOwner=List [%s]
+waves.createList=Create list
+waves.showPlaylist=Show list
+waves.deletePlaylist=Delete list
+waves.addToPlaylist=Add to list
+waves.removeFromPlaylist=Remove from list
+
+waves.friendRequests=Friend requests
+waves.friendsOf=Friends of %s
+waves.addFriend=Add
+waves.deleteFriend=Delete
+waves.acceptRequest=Accept
+waves.cancelRequest=Cancel
+waves.email=Email
+
+waves.statistics=Statistics
+waves.friendCount=Friends
+waves.musicCount=Music
+
+waves.download=Download
+waves.cantPlay=Browser not compatible.
+
+waves.error.invalid=An error occurred, could not complete the action.
+waves.error.acceptFriend=There is no relationship for the user [%s].
+waves.error.addFriend=A request for user [% s] already exists.
+waves.error.removeFriend=There is no relationship for the user [%s].
+waves.error.files=You do not have the necessary permissions.
+waves.error.upload=The file [%s] is invalid.
+waves.error.deleteFile=You are not authorized to access the file.
+waves.error.streamFile=You are not authorized to access the file.
+waves.error.download=You are not authorized to access the file.
+waves.error.playlists=You do not have the necessary permissions.
+waves.error.playlist=You do not have the necessary permissions.
+waves.error.createPlaylist=The name [%s] is not valid, it must contain between 2 and 20 characters.
+waves.error.deletePlaylist=You do not have the necessary permissions.
+waves.error.addToPlaylist=You do not have the necessary permissions.
+waves.error.removeFromPlaylist=You do not have the necessary permissions.
+
+waves.success.acceptFriend=The user [%s] is added to your list of friends.
+waves.success.addFriend=The request is sent to the user [%s].
+waves.success.removeFriend=The user [%s] is removed from your list of friends.
+waves.success.upload=File [%s] was uploaded correctly.
+waves.success.deleteFile=The file [%s] was deleted successfully.
+waves.success.createPlaylist=Playlist [%s] was created successfully.
+waves.success.deletePlaylist=The list [%s] was successfully removed.
+waves.success.addToPlaylist=The file [%s] is added to the list [%s].
+waves.success.removeFromPlaylist=The file [%s] is removed from the list [%s].
+
+securesocial.loginTitle=Log In
+securesocial.login=Log In
+securesocial.clickOnYourAccount=Use your existing account on one of the following networks to log in.
+securesocial.useEmailAndPassword=Or use a username and password.
+securesocial.email=Email Address
+securesocial.emailHelp=Eg: john.doe@gmail.com
+securesocial.password=Password
+securesocial.wrongUserPass=Wrong email address and password combination.
+securesocial.required=Required
+securesocial.invalidEmail=Enter a valid email address
+securesocial.signUp=If you don't have an account with us yet you can sign up
+securesocial.here=here
+securesocial.badUserPasswordCombination=Wrong username and password combination
+# [type] gets replaced by the provider id in the login page.
+# can't use %s because the string is being processed in javascript.
+securesocial.openIdUser=Username on [type]
+securesocial.openIdUserNotSpecified=Username not specified
+securesocial.authError=There was an error while trying to log you in.  Please try again.
+
+securesocial.signUpTitle=Sign Up
+securesocial.signUpLabel=Complete the following form:
+securesocial.userName=Username
+securesocial.name=Full Name
+securesocial.password2=Password confirmation
+securesocial.cancel=Cancel
+securesocial.passwordsMustMatch=The passwords do not match
+securesocial.userNameTaken=This username is already taken
+securesocial.activationTitle=Welcome %s
+securesocial.activationSuccess=Thank you, your account has been activated. Click <a href="%s">here</a> to log in.
+securesocial.activateTitle=Account Activation
+securesocial.errorCreatingAccount=There was an error creating your account. Please try again.
+securesocial.accountNotActive=Your account is not active. If you think this is an error please contact the administrator.
+securesocial.accountCreated=Your account has been created.  You should receive an activation email shortly.
+securesocial.invalidLink=The activation link you followed is invalid.
