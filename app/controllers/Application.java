@@ -18,11 +18,13 @@ import play.libs.MimeTypes;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Router;
-
 import play.mvc.With;
 
 import securesocial.provider.SocialUser;
 
+import waves.Drive;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -31,6 +33,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador encargado de manejar toda la funcionalidad de la aplicacion.
+ *
+ * @author Luis Chávez
+ */
 @With(SecureSocial.class)
 public class Application extends Controller {
 
@@ -584,24 +591,18 @@ public class Application extends Controller {
                 Sound sound = new Sound(currentUser, file.getName(), "");
                 sound.save();
 
-                File path = new File(
-                        String.format("%s/%s/", SOUND_PATH, currentUser.getId()));
-                path.mkdirs();
-                File target = new File(
-                        String.format("%s/%s/%s.mp3", SOUND_PATH, currentUser.getId(), sound.getId().toString()));
-                target.createNewFile();
+                String out = String.format("%s/%s", SOUND_PATH, currentUser.getId());
 
-                if (!target.exists()) {
+                boolean write = Drive.write(file, out, sound.getId().toString(), "mp3");
+
+                if (!write) {
                     sound.delete();
 
                     Out.error(play.i18n.Messages.get("waves.error.upload", sound.name));
                     Redirects.back();
                 } else {
-                    sound.path = target.getPath();
+                    sound.path = out.concat("/").concat(sound.getId().toString()).concat(".mp3");
                     sound.save();
-
-                    Files.copy(file, target);
-                    Files.delete(file);
 
                     Out.success(play.i18n.Messages.get("waves.success.upload", sound.name));
                     Redirects.files(currentUser);
@@ -633,17 +634,18 @@ public class Application extends Controller {
                     Redirects.back();
                 } else {
                     User currentUser = Data.currentUser();
-                    List<Playlist> playlists = Playlist.q().filter("sounds in", sound).asList();
 
-                    for (Playlist playlist : playlists) {
-                        playlist.sounds.remove(sound);
-                        playlist.save();
+                    if (Drive.delete(sound.path)) {
+                        List<Playlist> playlists = Playlist.q().filter("sounds in", sound).asList();
+                        for (Playlist playlist : playlists) {
+                            playlist.sounds.remove(sound);
+                            playlist.save();
+                        }
+
+                        sound.delete();
+                        Out.success(play.i18n.Messages.get("waves.success.deleteFile", sound.name));
                     }
 
-                    Files.delete(new File(sound.path));
-                    sound.delete();
-
-                    Out.success(play.i18n.Messages.get("waves.success.deleteFile", sound.name));
                     Redirects.files(currentUser);
                 }
             }
@@ -702,7 +704,7 @@ public class Application extends Controller {
                     Out.error(play.i18n.Messages.get("waves.error.download"));
                     Redirects.back();
                 } else {
-                    renderBinary(new File(sound.path), sound.name);
+                    renderBinary(new ByteArrayInputStream(Drive.read(sound.path)), sound.name);
                 }
             }
         }
