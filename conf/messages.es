@@ -8,7 +8,7 @@ waves.playlists=Listas de reproduccion
 waves.playlist=::%s::
 waves.stream=::%s::
 
-waves.welcome=Bienvenido! %s
+waves.welcome=Bienvenido! %s [%s]
 waves.copyright=Waves ©2015
 
 waves.confirm=¿Estas seguro?
@@ -28,8 +28,10 @@ waves.uploadSound=Subir
 waves.playSound=Reproducir
 waves.deleteSound=Eliminar
 
+waves.playlistName=Nombre
 waves.listsOwner=Lista [%s]
 waves.createList=Crear lista
+waves.changeListName=Actualizar lista
 waves.showPlaylist=Ver lista
 waves.deletePlaylist=Borrar lista
 waves.addToPlaylist=Agregar a la lista
@@ -61,7 +63,8 @@ waves.error.streamFile=No tienes permisos para acceder al archivo.
 waves.error.download=No tienes permisos para acceder al archivo.
 waves.error.playlists=No tienes los permisos necesarios.
 waves.error.playlist=No tienes los permisos necesarios.
-waves.error.createPlaylist=El nombre [%s] no es válido, tiene que contener entre 2 y 20 caracteres.
+waves.error.createPlaylist=El nombre [%s] no es válido, tiene que contener entre 2 y 50 caracteres.
+waves.error.changePlaylistName=No tienes los permisos necesarios.
 waves.error.deletePlaylist=No tienes los permisos necesarios.
 waves.error.addToPlaylist=No tienes los permisos necesarios.
 waves.error.removeFromPlaylist=No tienes los permisos necesarios.
@@ -72,6 +75,7 @@ waves.success.removeFriend=El usuario [%s] se eliminó de tu lista de amigos.
 waves.success.upload=El archivo [%s] se subió correctamente.
 waves.success.deleteFile=El archivo [%s] se eliminó correctamente.
 waves.success.createPlaylist=Se creo correctamente la lista de reproducción [%s].
+waves.success.changePlaylistName=Se actualizo el nombre de la lista [%s] a [%s].
 waves.success.deletePlaylist=Se eliminó correctamente la lista.
 waves.success.addToPlaylist=El archivo [%s] se agregó a la lista [%s].
 waves.success.removeFromPlaylist=El archivo [%s] se removió de la lista [%s].

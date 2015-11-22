@@ -47,6 +47,9 @@ GET     /playlist                               Application.playlist
 # Create playlist
 GET     /playlist/create                        Application.createPlaylist
 
+# Change playlist name
+GET     /playlist/rename                        Application.changePlaylistName
+
 # Delete playlist
 GET     /playlist/delete                        Application.deletePlaylist
 
