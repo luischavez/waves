@@ -21,7 +21,7 @@ public class Admin extends CRUD {
         SocialUser user = SecureSocial.getCurrentUser();
         if (null != user) {
             if (!"admin@waves.com".equals(user.email)) {
-                redirect(Router.reverse("Info.landing").url);
+                redirect(Router.reverse("Public.landing").url);
             }
         }
     }
