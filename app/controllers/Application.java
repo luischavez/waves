@@ -24,7 +24,6 @@ import securesocial.provider.SocialUser;
 
 import waves.Drive;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -704,7 +703,9 @@ public class Application extends Controller {
                     Out.error(play.i18n.Messages.get("waves.error.download"));
                     Redirects.back();
                 } else {
-                    renderBinary(new ByteArrayInputStream(Drive.read(sound.path)), sound.name);
+                    Drive.DriveFile file = Drive.read(sound.path);
+
+                    renderBinary(file.inputStream, sound.name, file.length, true);
                 }
             }
         }
@@ -776,7 +777,7 @@ public class Application extends Controller {
      *
      * @param name nombre de la lista de reproduccion.
      */
-    public static void createPlaylist(@Required @MinSize(2) @MaxSize(20) String name) {
+    public static void createPlaylist(@Required @MinSize(2) @MaxSize(50) String name) {
         if (Validation.hasErrors()) {
             Out.error(play.i18n.Messages.get("waves.error.createPlaylist", name));
             Redirects.back();
@@ -786,6 +787,33 @@ public class Application extends Controller {
 
             Out.success(play.i18n.Messages.get("waves.success.createPlaylist", name));
             Redirects.playlist(playlist);
+        }
+    }
+
+    /**
+     * Accion que actualiza el nombre de la lsita con el identificador especificado.
+     *
+     * @param playlistId identificador de la lista de reproduccion.
+     */
+    public static void changePlaylistName(@Required String playlistId, @Required @MinSize(2) @MaxSize(50) String name) {
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            User currentUser = Data.currentUser();
+            Playlist playlist = Data.list(playlistId);
+
+            if (!Data.isOwner(playlist)) {
+                Out.error(play.i18n.Messages.get("waves.error.changePlaylistName"));
+                Redirects.back();
+            } else {
+                String oldName = playlist.name;
+                playlist.name = name;
+                playlist.save();
+
+                Out.success(play.i18n.Messages.get("waves.success.changePlaylistName", oldName, playlist.name));
+                Redirects.playlist(playlist);
+            }
         }
     }
 

@@ -8,7 +8,7 @@ waves.playlists=Playlists
 waves.playlist=::%s::
 waves.stream=::%s::
 
-waves.welcome=Welcome! %s
+waves.welcome=Welcome! %s [%s]
 waves.copyright=Waves ©2015
 
 waves.confirm=¿Are you sure?
@@ -28,8 +28,10 @@ waves.uploadSound=Upload
 waves.playSound=Play
 waves.deleteSound=Delete
 
+waves.playlistName=Name
 waves.listsOwner=List [%s]
 waves.createList=Create list
+waves.changeListName=Update list
 waves.showPlaylist=Show list
 waves.deletePlaylist=Delete list
 waves.addToPlaylist=Add to list
@@ -61,7 +63,8 @@ waves.error.streamFile=You are not authorized to access the file.
 waves.error.download=You are not authorized to access the file.
 waves.error.playlists=You do not have the necessary permissions.
 waves.error.playlist=You do not have the necessary permissions.
-waves.error.createPlaylist=The name [%s] is not valid, it must contain between 2 and 20 characters.
+waves.error.createPlaylist=The name [%s] is not valid, it must contain between 2 and 50 characters.
+waves.error.changePlaylistName=You do not have the necessary permissions.
 waves.error.deletePlaylist=You do not have the necessary permissions.
 waves.error.addToPlaylist=You do not have the necessary permissions.
 waves.error.removeFromPlaylist=You do not have the necessary permissions.
@@ -72,6 +75,7 @@ waves.success.removeFriend=The user [%s] is removed from your list of friends.
 waves.success.upload=File [%s] was uploaded correctly.
 waves.success.deleteFile=The file [%s] was deleted successfully.
 waves.success.createPlaylist=Playlist [%s] was created successfully.
+waves.success.changePlaylistName=The name of the list was updated [%s] to [%s].
 waves.success.deletePlaylist=The list [%s] was successfully removed.
 waves.success.addToPlaylist=The file [%s] is added to the list [%s].
 waves.success.removeFromPlaylist=The file [%s] is removed from the list [%s].

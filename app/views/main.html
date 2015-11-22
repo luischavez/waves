@@ -26,7 +26,7 @@
                 </div>
                 #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
                     <p class="navbar-text">
-                        &{'waves.welcome', user.displayName}
+                        &{'waves.welcome', user.displayName, user.email}
                     </p>
                 #{/if}
             </div>

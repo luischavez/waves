@@ -38,14 +38,15 @@ public class Drive {
         return options;
     }
 
-    static byte[] readLocal(String in) {
+    static DriveFile readLocal(String in) {
         File file = new File(in);
 
         if (file.exists()) {
             try {
-                byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
-                return bytes;
-            } catch (IOException e) {
+                FileInputStream inputStream = new FileInputStream(file);
+
+                return new DriveFile(file.length(), inputStream);
+            } catch (FileNotFoundException e) {
             }
         }
 
@@ -110,7 +111,7 @@ public class Drive {
         return client;
     }*/
 
-    static byte[] readDropbox(String in) {
+    static DriveFile readDropbox(String in) {
         Map<String, String> options = options();
 
         String key = options.get("dropbox.key");
@@ -138,13 +139,10 @@ public class Drive {
                 return null;
             }
 
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             try {
-                DbxEntry.File downloadedFile = client.getFile(in, null, outputStream);
-                System.out.println("Metadata: " + downloadedFile.toString());
+                DbxClient.Downloader downloader = client.startGetFile(in, null);
 
-                return outputStream.toByteArray();
-            } catch (IOException e) {
+                return new DriveFile(downloader.metadata.numBytes, downloader.body);
             } catch (DbxException e) {
             }
         } catch (JsonReadException e) {
@@ -244,7 +242,7 @@ public class Drive {
         return false;
     }
 
-    public static byte[] read(String in) {
+    public static DriveFile read(String in) {
         Map<String, String> options = options();
 
         String drive = options.get("drive");
@@ -275,5 +273,16 @@ public class Drive {
         }
 
         return "local".equals(drive) ? deleteLocal(in) : deleteDropbox(in);
+    }
+
+    public static class DriveFile {
+
+        public long length;
+        public InputStream inputStream;
+
+        public DriveFile(long length, InputStream inputStream) {
+            this.length = length;
+            this.inputStream = inputStream;
+        }
     }
 }
