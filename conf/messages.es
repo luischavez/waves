@@ -1,5 +1,7 @@
 waves.header=Waves
 
+waves.admin=Administracion
+
 waves.landing=Waves
 waves.home=Inicio
 waves.friends=Amigos
