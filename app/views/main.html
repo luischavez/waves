@@ -28,6 +28,11 @@
                     <p class="navbar-text">
                         &{'waves.welcome', user.displayName, user.email}
                     </p>
+                    <p class="navbar-text pull-right">
+                        #{if "admin@waves.com".equals(user.email)}
+                            <a href="@{controllers.Admin.index()}" class="btn btn-default">&{'waves.admin'}</a>
+                        #{/if}
+                    </p>
                 #{/if}
             </div>
         </nav>
