@@ -8,14 +8,17 @@
 # Admin
 *       /admin                                  module:crud
 
+# Lang
+GET     /locale                                 Public.lang
+
 # Landing page
-GET     /                                       Info.landing
+GET     /                                       Public.landing
 
 # Home page
 GET     /home                                   Application.home
 
 # Sound list
-GET     /list                                   Application.files
+GET     /files                                  Application.files
 
 # Sound page
 GET     /stream                                 Application.streamFile

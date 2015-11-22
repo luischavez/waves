@@ -36,7 +36,7 @@ waves.addToPlaylist=Agregar a la lista
 waves.removeFromPlaylist=Remover de la lista
 
 waves.friendRequests=Solicitudes de amistad
-waves.friendsOf=Amigos de %s
+waves.friendsOf=Amigos [%s]
 waves.addFriend=Agregar
 waves.deleteFriend=Eliminar
 waves.acceptRequest=Aceptar
