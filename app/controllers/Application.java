@@ -593,6 +593,7 @@ public class Application extends Controller {
                 String out = String.format("%s/%s", SOUND_PATH, currentUser.getId());
 
                 boolean write = Drive.write(file, out, sound.getId().toString(), "mp3");
+                Files.delete(file);
 
                 if (!write) {
                     sound.delete();

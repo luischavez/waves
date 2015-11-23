@@ -69,8 +69,6 @@ public class Drive {
 
         try {
             Files.copy(in, target);
-            Files.delete(in);
-
             return true;
         } catch (RuntimeException ex) {
         }
