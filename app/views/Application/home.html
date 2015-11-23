@@ -21,13 +21,9 @@
     </div>
     <div class="list-group">
         #{list items:friends, as:'relation'}
-            #{if relation.accepted}
-                #{if relation_index < MAX_RECENT_FRIENDS}
-                    <p class="list-group-item">
-                        #{friend user:user, relation:relation /}
-                    </p>
-                #{/if}
-            #{/if}
+            <p class="list-group-item">
+                #{friend user:user, relation:relation /}
+            </p>
         #{/list}
     </div>
 </div>
@@ -38,11 +34,9 @@
     </div>
     <div class="list-group">
         #{list items:sounds, as:'sound'}
-            #{if sound_index < MAX_RECENT_SOUNDS}
-                <p class="list-group-item">
-                    #{file user:user, sound:sound/}
-                </p>
-            #{/if}
+            <p class="list-group-item">
+                #{file user:user, sound:sound/}
+            </p>
         #{/list}
     </div>
 </div>

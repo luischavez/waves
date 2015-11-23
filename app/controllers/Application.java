@@ -15,12 +15,11 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.Files;
 import play.libs.MimeTypes;
+import play.modules.morphia.Model;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.With;
-
-import securesocial.provider.SocialUser;
 
 import waves.Drive;
 
@@ -61,7 +60,6 @@ public class Application extends Controller {
          * @return usuario o null si el correo no esta registrado.
          */
         static User user(String email) {
-            SocialUser currentUser = SecureSocial.getCurrentUser();
             return User.find("email", email).first();
         }
 
@@ -80,15 +78,24 @@ public class Application extends Controller {
          * @param user usuario
          * @return lista de relaciones.
          */
-        static List<Relation> relations(User user) {
-            User currentUser = currentUser();
+        static List<Relation> relations(User user, boolean onlyAccepted, int limit) {
+            Model.MorphiaQuery q = Relation.q();
+            q.or(q.criteria("user").equal(user), q.criteria("friend").equal(user));
 
-            List<Relation> relations = new ArrayList<>();
-            relations.addAll(Relation.find("user", currentUser).order("-_created").asList());
-            relations.addAll(Relation.find("friend", currentUser).order("-_created").asList());
+            if (onlyAccepted) {
+                q.and(q.criteria("accepted").equal(true));
+            }
 
-            return relations;
+            q.order("-_created");
+
+            if (0 < limit) {
+                q.limit(limit);
+            }
+
+            return q.asList();
         }
+
+
 
         /**
          * Obtiene la relacion entre el usuario actual y el usuario con el correo especificado.
@@ -133,8 +140,17 @@ public class Application extends Controller {
          * @param user usuario
          * @return lista de musica.
          */
-        static List<Sound> sounds(User user) {
-            return Sound.find("owner", user).order("-_created").asList();
+        static List<Sound> sounds(User user, int limit) {
+            Model.MorphiaQuery q = Sound.q();
+
+            q.and(q.criteria("owner").equal(user));
+            q.order("-_created");
+
+            if (0 < limit) {
+                q.limit(limit);
+            }
+
+            return q.asList();
         }
 
         /**
@@ -145,16 +161,14 @@ public class Application extends Controller {
         static List<Sound> soundsAndFriendSounds() {
             List<Sound> sounds = new ArrayList<>();
 
-            sounds.addAll(sounds(currentUser()));
+            sounds.addAll(sounds(currentUser(), 0));
 
-            List<Relation> relations = relations(currentUser());
+            List<Relation> relations = relations(currentUser(), true, 0);
             for (Relation relation : relations) {
-                if (relation.accepted) {
-                    if (isCurrentUser(relation.user)) {
-                        sounds.addAll(sounds(relation.friend));
-                    } else {
-                        sounds.addAll(sounds(relation.user));
-                    }
+                if (isCurrentUser(relation.user)) {
+                    sounds.addAll(sounds(relation.friend, 0));
+                } else {
+                    sounds.addAll(sounds(relation.user, 0));
                 }
             }
 
@@ -202,14 +216,12 @@ public class Application extends Controller {
          * @return total de amigos.
          */
         static int friendCount(User user) {
-            List<Relation> relations = Data.relations(user);
+            List<Relation> relations = Data.relations(user, true, 0);
 
             int friendCount = 0;
 
             for (Relation relation : relations) {
-                if (relation.accepted) {
-                    friendCount++;
-                }
+                friendCount++;
             }
 
             return friendCount;
@@ -222,7 +234,7 @@ public class Application extends Controller {
          * @return total de canciones.
          */
         static int soundCount(User user) {
-            List<Sound> sounds = Data.sounds(user);
+            List<Sound> sounds = Data.sounds(user, 0);
 
             return sounds.size();
         }
@@ -248,7 +260,9 @@ public class Application extends Controller {
         static boolean belongsToFriend(Sound sound) {
             boolean valid = false;
 
-            for (Relation relation : relations(currentUser())) {
+            List<Relation> relations = relations(currentUser(), true, 0);
+
+            for (Relation relation : relations) {
                 if (relation.friend.email.equals(sound.owner.email)
                         || relation.user.email.equals(sound.owner.email)) {
                     valid = true;
@@ -280,7 +294,9 @@ public class Application extends Controller {
         static boolean belongsToFriend(Playlist playlist) {
             boolean valid = false;
 
-            for (Relation relation : relations(currentUser())) {
+            List<Relation> relations = relations(currentUser(), true, 0);
+
+            for (Relation relation : relations) {
                 if (relation.friend.email.equals(playlist.owner.email)
                         || relation.user.email.equals(playlist.owner.email)) {
                     valid = true;
@@ -399,8 +415,8 @@ public class Application extends Controller {
     public static void home() {
         User currentUser = Data.currentUser();
 
-        List<Relation> relations = Data.relations(currentUser);
-        List<Sound> sounds = Data.sounds(currentUser);
+        List<Relation> relations = Data.relations(currentUser, true, MAX_RECENT_FRIENDS);
+        List<Sound> sounds = Data.sounds(currentUser, MAX_RECENT_SOUNDS);
 
         int friendCount = Data.friendCount(currentUser);
         int soundCount = Data.soundCount(currentUser);
@@ -409,8 +425,6 @@ public class Application extends Controller {
         renderArgs.put("sounds", sounds);
         renderArgs.put("friendCount", friendCount);
         renderArgs.put("soundCount", soundCount);
-        renderArgs.put("MAX_RECENT_FRIENDS", MAX_RECENT_FRIENDS);
-        renderArgs.put("MAX_RECENT_SOUNDS", MAX_RECENT_SOUNDS);
 
         render();
     }
@@ -424,7 +438,7 @@ public class Application extends Controller {
     public static void friends() {
         User currentUser = Data.currentUser();
 
-        List<Relation> relations = Data.relations(currentUser);
+        List<Relation> relations = Data.relations(currentUser, false, 0);
 
         renderArgs.put("friends", relations);
 
@@ -555,7 +569,7 @@ public class Application extends Controller {
                     Out.error(play.i18n.Messages.get("waves.error.files"));
                     Redirects.back();
                 } else {
-                    renderArgs.put("sounds", Data.sounds(user));
+                    renderArgs.put("sounds", Data.sounds(user, 0));
                     renderArgs.put("filesOwner", user);
 
                     render();
