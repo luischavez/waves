@@ -1,6 +1,19 @@
 #{extends 'main.html' /}
 #{set 'title'}&{'waves.stream', sound.name}#{/set}
 
+#{set 'moreScripts'}
+<script>
+
+    (function($){
+        var audio = $('#audio');
+
+        audio[0].volume = .20;
+        audio[0].play();
+    })(jQuery);
+
+</script>
+#{/set}
+
 <div class="panel panel-primary">
     <div class="panel-heading text-center">
         ${sound.name}
@@ -10,7 +23,7 @@
         </a>
     </div>
     <div class="panel-body text-center">
-        <audio controls style="width: 100%;">
+        <audio id="audio" preload="auto" tabindex="0" controls="" type="audio/mpeg" style="width: 100%;">
             <source src="@{controllers.Application.download(sound.id)}" type="audio/mpeg" />
             &{'waves.cantPlay'}
         </audio>

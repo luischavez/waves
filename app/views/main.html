@@ -26,7 +26,12 @@
                 </div>
                 #{if controllers.securesocial.SecureSocial.getCurrentUser() != null }
                     <p class="navbar-text">
-                        &{'waves.welcome', user.displayName}
+                        &{'waves.welcome', user.displayName, user.email}
+                    </p>
+                    <p class="navbar-text pull-right">
+                        #{if "admin@waves.com".equals(user.email)}
+                            <a href="@{controllers.Admin.index()}" class="btn btn-default">&{'waves.admin'}</a>
+                        #{/if}
                     </p>
                 #{/if}
             </div>
@@ -83,11 +88,16 @@
         </div>
     </div>
 
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
     <div id="footer">
         <div class="navbar navbar-inverse navbar-fixed-bottom">
             <div class="container-fluid">
                 <div class="navbar-text pull-left">
                     &{'waves.copyright'}
+                </div>
+                <div class="navbar-text pull-right">
+                    #{lang /}
                 </div>
             </div>
         </div>

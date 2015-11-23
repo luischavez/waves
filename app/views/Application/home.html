@@ -17,19 +17,27 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        &{'waves.recent'}
+        &{'waves.friendsOf', user.displayName}
     </div>
     <div class="list-group">
-        #{if relation}
+        #{list items:friends, as:'relation'}
             <p class="list-group-item">
                 #{friend user:user, relation:relation /}
             </p>
-        #{/if}
-        #{if sound}
+        #{/list}
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        &{'waves.musicOwner', user.displayName}
+    </div>
+    <div class="list-group">
+        #{list items:sounds, as:'sound'}
             <p class="list-group-item">
-                #{file user:user, sound:sound /}
+                #{file user:user, sound:sound/}
             </p>
-        #{/if}
+        #{/list}
     </div>
 </div>
 

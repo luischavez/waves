@@ -16,12 +16,12 @@ import play.data.validation.Validation;
 import play.libs.Files;
 import play.libs.MimeTypes;
 import play.modules.morphia.Model;
-import play.mvc.Before;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Router;
 import play.mvc.With;
 
-import securesocial.provider.SocialUser;
+import waves.Drive;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,91 +42,226 @@ public class Application extends Controller {
     // Carpeta donde se almacenara la musica.
     public static final String SOUND_PATH = "sounds/";
 
-    @Before
-    static void commons() {
-    }
+    // Indica el numero maximo de amigos a mostrar en el inicio.
+    public static final int MAX_RECENT_FRIENDS = 5;
+
+    // Indica el numero maximo de musica a mostrar en el inicio.
+    public static final int MAX_RECENT_SOUNDS = 5;
 
     /**
-     * Obtiene al usuario actual.
-     *
-     * @return usuario actual.
+     * Clase encargada de facilitar el acceso a los datos.
      */
-    static User currentUser() {
-        SocialUser currentUser = SecureSocial.getCurrentUser();
-        return User.find("email", currentUser.email).first();
-    }
+    static class Data {
 
-    /**
-     * Obtiene al usuario al que pertenece el correo especificado.
-     *
-     * @param email correo
-     * @return usuario o null si el correo no esta registrado.
-     */
-    static User user(String email) {
-        return User.find("email", email).first();
-    }
-
-    /**
-     * Obtiene la lista de relaciones del usuario actual.
-     *
-     * @return lista de relaciones.
-     */
-    static List<Relation> relations() {
-        User currentUser = currentUser();
-
-        List<Relation> relations = new ArrayList<>();
-        relations.addAll(Relation.find("user", currentUser).order("-_created").asList());
-        relations.addAll(Relation.find("friend", currentUser).order("-_created").asList());
-
-        return relations;
-    }
-
-    /**
-     * Obtiene la relacion entre el usuario actual y el usuario con el correo especificado.
-     *
-     * @param friendEmail correo del usuario a buscar.
-     * @return relacion o null si no existe.
-     */
-    static Relation relation(String friendEmail) {
-        User currentUser = currentUser();
-        User friend = user(friendEmail);
-
-        Relation relation = Relation.find("user, friend", currentUser, friend).first();
-        if (null == relation) {
-            relation = Relation.find("user, friend", friend, currentUser).first();
+        /**
+         * Obtiene al usuario al que pertenece el correo especificado.
+         *
+         * @param email correo
+         * @return usuario o null si el correo no esta registrado.
+         */
+        static User user(String email) {
+            return User.find("email", email).first();
         }
 
-        return relation;
-    }
+        /**
+         * Obtiene al usuario actual.
+         *
+         * @return usuario actual.
+         */
+        static User currentUser() {
+            return user(SecureSocial.getCurrentUser().email);
+        }
 
-    /**
-     * Obtiene la lista de musica del usuario con el correo especificado.
-     *
-     * @param email correo
-     * @return lista de musica.
-     */
-    static List<Sound> sounds(String email) {
-        return Sound.find("owner", user(email)).order("-_created").asList();
-    }
+        /**
+         * Obtiene la lista de relaciones del usuario especificado.
+         *
+         * @param user usuario
+         * @return lista de relaciones.
+         */
+        static List<Relation> relations(User user, boolean onlyAccepted, int limit) {
+            Model.MorphiaQuery q = Relation.q();
+            q.or(q.criteria("user").equal(user), q.criteria("friend").equal(user));
 
-    /**
-     * Obtiene la cancion con el identificador especificado.
-     *
-     * @param soundId identificador
-     * @return cancion o null si no existe.
-     */
-    static Sound sound(String soundId) {
-        User currentUser = currentUser();
-        List<Relation> relations = relations();
+            if (onlyAccepted) {
+                q.and(q.criteria("accepted").equal(true));
+            }
 
-        Sound sound = Sound.find("_id", new ObjectId(soundId)).first();
+            q.order("-_created");
 
-        if (null != sound && currentUser.email.equals(sound.owner.email)) {
+            if (0 < limit) {
+                q.limit(limit);
+            }
+
+            return q.asList();
+        }
+
+
+
+        /**
+         * Obtiene la relacion entre el usuario actual y el usuario con el correo especificado.
+         *
+         * @param friend amigo a buscar.
+         * @return relacion o null si no existe.
+         */
+        static Relation relation(User friend) {
+            User currentUser = currentUser();
+
+            Relation relation = Relation.find("user, friend", currentUser, friend).first();
+            if (null == relation) {
+                relation = Relation.find("user, friend", friend, currentUser).first();
+            }
+
+            return relation;
+        }
+
+        /**
+         * Verifica si el usuario es el usuario actual.
+         *
+         * @param user usuario.
+         * @return true si es el usuario actual, false de otra manera.
+         */
+        static boolean isCurrentUser(User user) {
+            return currentUser().email.equals(user.email);
+        }
+
+        /**
+         * Verifica si el usuario actual tiene como amigo al usuario especificado.
+         *
+         * @param user amigo a buscar.
+         * @return true si son amigos, false de otra manera.
+         */
+        static boolean isFriend(User user) {
+            return null != relation(user);
+        }
+
+        /**
+         * Obtiene la lista de musica del usuario con el correo especificado.
+         *
+         * @param user usuario
+         * @return lista de musica.
+         */
+        static List<Sound> sounds(User user, int limit) {
+            Model.MorphiaQuery q = Sound.q();
+
+            q.and(q.criteria("owner").equal(user));
+            q.order("-_created");
+
+            if (0 < limit) {
+                q.limit(limit);
+            }
+
+            return q.asList();
+        }
+
+        /**
+         * Obtiene la lista con la musica del usuario actual y todos sus amigos.
+         *
+         * @return lista de musica.
+         */
+        static List<Sound> soundsAndFriendSounds() {
+            List<Sound> sounds = new ArrayList<>();
+
+            sounds.addAll(sounds(currentUser(), 0));
+
+            List<Relation> relations = relations(currentUser(), true, 0);
+            for (Relation relation : relations) {
+                if (isCurrentUser(relation.user)) {
+                    sounds.addAll(sounds(relation.friend, 0));
+                } else {
+                    sounds.addAll(sounds(relation.user, 0));
+                }
+            }
+
+            return sounds;
+        }
+
+        /**
+         * Obtiene la cancion con el identificador especificado.
+         *
+         * @param soundId identificador
+         * @return cancion o null si no existe o no se tiene permiso para reproducirla.
+         */
+        static Sound sound(String soundId) {
+            Sound sound = Sound.find("_id", new ObjectId(soundId)).first();
+
             return sound;
         }
 
-        boolean valid = false;
-        if (null != sound) {
+        /**
+         * Obtine las listas de reproduccion de un usuario especifico.
+         *
+         * @param user usuario
+         * @return listas de reproduccion.
+         */
+        static List<Playlist> lists(User user) {
+            return Playlist.find("owner", user).order("-_created").asList();
+        }
+
+        /**
+         * Obtiene la lista de reproduccion con el identificador especificado.
+         *
+         * @param playlistId identificador
+         * @return lista de reproduccion o null si no existe o no se tiene permiso para acceder a ella.
+         */
+        static Playlist list(String playlistId) {
+            Playlist playlist = Playlist.find("_id", new ObjectId(playlistId)).first();
+
+            return playlist;
+        }
+
+        /**
+         * Total de amigos del usuario especificado.
+         *
+         * @param user usuario
+         * @return total de amigos.
+         */
+        static int friendCount(User user) {
+            List<Relation> relations = Data.relations(user, true, 0);
+
+            int friendCount = 0;
+
+            for (Relation relation : relations) {
+                friendCount++;
+            }
+
+            return friendCount;
+        }
+
+        /**
+         * Total de canciones del usuario especificado.
+         *
+         * @param user usuario
+         * @return total de canciones.
+         */
+        static int soundCount(User user) {
+            List<Sound> sounds = Data.sounds(user, 0);
+
+            return sounds.size();
+        }
+
+        /**
+         * Verifica si el usuario actual es el propietario de la cancion
+         * epecificada.
+         *
+         * @param sound cancion
+         * @return true si es el propietario, false de otra manera.
+         */
+        static boolean isOwner(Sound sound) {
+            return sound.owner.email.equals(currentUser().email);
+        }
+
+        /**
+         * Verifica si la cancion especificada pertenece a algun amigo del
+         * usuario actual.
+         *
+         * @param sound cancion
+         * @return true si le pertenece a algun amigo, false de otra manera.
+         */
+        static boolean belongsToFriend(Sound sound) {
+            boolean valid = false;
+
+            List<Relation> relations = relations(currentUser(), true, 0);
+
             for (Relation relation : relations) {
                 if (relation.friend.email.equals(sound.owner.email)
                         || relation.user.email.equals(sound.owner.email)) {
@@ -134,39 +269,33 @@ public class Application extends Controller {
                     break;
                 }
             }
+
+            return valid;
         }
 
-        return valid ? sound : null;
-    }
-
-    /**
-     * Obtine las listas de reproduccion de un usuario especifico.
-     *
-     * @param email correo del ususario.
-     * @return listas de reproduccion.
-     */
-    static List<Playlist> lists(String email) {
-        return Playlist.find("owner", user(email)).order("-_created").asList();
-    }
-
-    /**
-     * Obtiene la lista de reproduccion con el identificador especificado.
-     *
-     * @param playlistId identificador
-     * @return lista de reproduccion o null si no existe.
-     */
-    static Playlist list(String playlistId) {
-        User currentUser = currentUser();
-        List<Relation> relations = relations();
-
-        Playlist playlist = Playlist.find("_id", new ObjectId(playlistId)).first();
-
-        if (null != playlist && currentUser.email.equals(playlist.owner.email)) {
-            return playlist;
+        /**
+         * Verifica si el usuario actual es el propietario de la lista
+         * de reproduccion especificada.
+         *
+         * @param playlist lista de reproduccion
+         * @return true si es el propietario, false de otra manera.
+         */
+        static boolean isOwner(Playlist playlist) {
+            return playlist.owner.email.equals(currentUser().email);
         }
 
-        boolean valid = false;
-        if (null != playlist) {
+        /**
+         * Verifica si la lista de reproduccion especificada pertenece
+         * a algun amigo del usuario actual.
+         *
+         * @param playlist cancion
+         * @return true si le pertenece a algun amigo, false de otra manera.
+         */
+        static boolean belongsToFriend(Playlist playlist) {
+            boolean valid = false;
+
+            List<Relation> relations = relations(currentUser(), true, 0);
+
             for (Relation relation : relations) {
                 if (relation.friend.email.equals(playlist.owner.email)
                         || relation.user.email.equals(playlist.owner.email)) {
@@ -174,44 +303,126 @@ public class Application extends Controller {
                     break;
                 }
             }
+
+            return valid;
+        }
+    }
+
+    /**
+     * Clase encargada de manejar los mensajes de la sesion.
+     */
+    static class Out {
+
+        /**
+         * Agrega un mensaje de error en la sesion.
+         *
+         * @param value mensaje
+         * @param args parametros
+         */
+        static void error(String value, Object... args) {
+            flash.error(value, args);
         }
 
-        return valid ? playlist : null;
+        /**
+         * Agrega un mensaje en la sesion.
+         *
+         * @param value mensaje
+         * @param args parametros
+         */
+        static void success(String value, Object... args) {
+            flash.success(value, args);
+        }
+    }
+
+    /**
+     * Clase encargada de manejar las redirecciones.
+     */
+    static class Redirects {
+
+        /**
+         * Redirecciona a la ruta anterior.
+         */
+        static void back() {
+            Http.Header referer = request.headers.get("referer");
+
+            if (null == referer) {
+                home();
+            } else {
+                redirect(referer.value());
+            }
+        }
+
+        /**
+         * Redirecciona al inicio.
+         */
+        static void home() {
+            redirect(Router.reverse("Application.home").url);
+        }
+
+        /**
+         * Redirecciona al listado de amigos.
+         */
+        static void friends() {
+            redirect(Router.reverse("Application.friends").url);
+        }
+
+        /**
+         * Redirecciona a las canciones del usuario especificado.
+         *
+         * @param user usuairo
+         */
+        static void files(User user) {
+            Map<String, Object> args = new HashMap<>();
+            args.put("email", user.email);
+
+            redirect(Router.reverse("Application.files", args).url);
+        }
+
+        /**
+         * Redirecciona a las listas de reproduccion del usuario especificado.
+         *
+         * @param user usuairo
+         */
+        static void playlists(User user) {
+            Map<String, Object> args = new HashMap<>();
+            args.put("email", user.email);
+
+            redirect(Router.reverse("Application.playlists", args).url);
+        }
+
+        /**
+         * Redirecciona a la lista de reproduccion especifidada.
+         *
+         * @param playlist lista de reproduccion.
+         */
+        static void playlist(Playlist playlist) {
+            Map<String, Object> args = new HashMap<>();
+            args.put("playlistId", playlist.getId());
+
+            redirect(Router.reverse("Application.playlist", args).url);
+        }
     }
 
     /**
      * Accion que muestra la pantalla de bienvenida.
      *
      * Carga las siguientes variables:
-     * - relation: ultima relacion del usuario actual.
-     * - sound: ultima cancion del usuario actual.
+     * - friends: relaciones del usuario actual.
+     * - sounds: canciones del usuario actual.
      * - friendCount: total de amigos del usuario actual.
      * - soundCount: total de canciones del usuario actual.
      */
     public static void home() {
-        List<Relation> relations = relations();
-        List<Sound> sounds = sounds(currentUser().email);
+        User currentUser = Data.currentUser();
 
-        int friendCount = 0;
-        int soundCount = sounds.size();
+        List<Relation> relations = Data.relations(currentUser, true, MAX_RECENT_FRIENDS);
+        List<Sound> sounds = Data.sounds(currentUser, MAX_RECENT_SOUNDS);
 
-        for (Relation relation : relations) {
-            if (relation.accepted) {
-                friendCount++;
-            }
-        }
+        int friendCount = Data.friendCount(currentUser);
+        int soundCount = Data.soundCount(currentUser);
 
-        if (!relations.isEmpty()) {
-            Relation relation = relations.get(0);
-            if (relation.accepted) {
-                renderArgs.put("relation", relation);
-            }
-        }
-
-        if (!sounds.isEmpty()) {
-            renderArgs.put("sound", sounds.get(0));
-        }
-
+        renderArgs.put("friends", relations);
+        renderArgs.put("sounds", sounds);
         renderArgs.put("friendCount", friendCount);
         renderArgs.put("soundCount", soundCount);
 
@@ -222,10 +433,13 @@ public class Application extends Controller {
      * Accion que muestra la lista de amigos del usuario.
      *
      * Carga las siguientes variables:
-     * - friends: lista de amigos del usuario actual.
+     * - friends: relaciones del usuario actual.
      */
     public static void friends() {
-        List<Relation> relations = relations();
+        User currentUser = Data.currentUser();
+
+        List<Relation> relations = Data.relations(currentUser, false, 0);
+
         renderArgs.put("friends", relations);
 
         render();
@@ -239,18 +453,30 @@ public class Application extends Controller {
      * @param email correo de la persona a aceptar.
      */
     public static void acceptFriend(@Required String email) {
-        Relation relation = relation(email);
-        User friend = user(email);
-
-        if (null != relation && !currentUser().email.equals(email)) {
-            relation.accepted = true;
-            relation.save();
-            flash.success("Se acepto al usuario [%s]", friend.displayName);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            flash.error("El usuario [%s] no esta en tu lista de amigos", friend.displayName);
-        }
+            User friend = Data.user(email);
 
-        redirect(Router.reverse("Application.friends").url);
+            if (null == friend || Data.isCurrentUser(friend)) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                Relation relation = Data.relation(friend);
+
+                if (null == relation) {
+                    Out.error(play.i18n.Messages.get("waves.error.acceptFriend"));
+                    Redirects.back();
+                } else {
+                    relation.accepted = true;
+                    relation.save();
+
+                    Out.success(play.i18n.Messages.get("waves.success.acceptFriend", friend.displayName));
+                    Redirects.friends();
+                }
+            }
+        }
     }
 
     /**
@@ -261,23 +487,31 @@ public class Application extends Controller {
      * @param email correo de la persona a la que se le enviara la peticion.
      */
     public static void addFriend(@Required String email) {
-        if (!currentUser().email.equals(email)) {
-            User friend = user(email);
-            Relation relation = relation(email);
-            if (null == friend) {
-                flash.error("El usuario [%s] no existe!", email);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            User currentUser = Data.currentUser();
+            User friend = Data.user(email);
+
+            if (null == friend || Data.isCurrentUser(friend)) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
             } else {
-                if (null == relation) {
-                    relation = new Relation(currentUser(), friend);
-                    relation.save();
-                    flash.success("Se envio la solicitud al usuario [%s]", friend.displayName);
+                Relation relation = Data.relation(friend);
+
+                if (null != relation) {
+                    Out.error(play.i18n.Messages.get("waves.error.addFriend", friend.displayName));
+                    Redirects.back();
                 } else {
-                    flash.error("Ya existe una solicitud [%s] en espera", friend.displayName);
+                    relation = new Relation(currentUser, friend);
+                    relation.save();
+
+                    Out.success(play.i18n.Messages.get("waves.success.addFriend", friend.displayName));
+                    Redirects.friends();
                 }
             }
         }
-
-        redirect(Router.reverse("Application.friends").url);
     }
 
     /**
@@ -288,17 +522,29 @@ public class Application extends Controller {
      * @param email correo de la persona a eliminar.
      */
     public static void removeFriend(@Required String email) {
-        Relation relation = relation(email);
-        User friend = user(email);
-
-        if (null != relation && !currentUser().email.equals(email)) {
-            relation.delete();
-            flash.success("Se elimino al usuario [%s]", friend.displayName);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            flash.error("El usuario [%s] no esta en tu lista de amigos", friend.displayName);
-        }
+            User friend = Data.user(email);
 
-        redirect(Router.reverse("Application.friends").url);
+            if (null == friend || Data.isCurrentUser(friend)) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                Relation relation = Data.relation(friend);
+
+                if (null == relation) {
+                    Out.error(play.i18n.Messages.get("waves.error.removeFriend", friend.displayName));
+                    Redirects.back();
+                } else {
+                    relation.delete();
+
+                    Out.success(play.i18n.Messages.get("waves.success.removeFriend", friend.displayName));
+                    Redirects.friends();
+                }
+            }
+        }
     }
 
     /**
@@ -309,16 +555,26 @@ public class Application extends Controller {
      * @param email correo del usuario.
      */
     public static void files(@Required String email) {
-        Relation relation = relation(email);
-
-        if (null == relation && !currentUser().email.equals(email)) {
-            redirect(Router.reverse("Application.home").url);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            List<Sound> sounds = sounds(email);
-            renderArgs.put("sounds", sounds);
-            renderArgs.put("filesOwner", user(email));
+            User user = Data.user(email);
 
-            render();
+            if (null == user) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                if (!Data.isCurrentUser(user) && !Data.isFriend(user)) {
+                    Out.error(play.i18n.Messages.get("waves.error.files"));
+                    Redirects.back();
+                } else {
+                    renderArgs.put("sounds", Data.sounds(user, 0));
+                    renderArgs.put("filesOwner", user);
+
+                    render();
+                }
+            }
         }
     }
 
@@ -331,40 +587,42 @@ public class Application extends Controller {
      * @throws IOException si ocurre una error.
      */
     public static void uploadFile(@Required File file) throws IOException {
-        User currentUser = currentUser();
-
-        if (!Validation.hasErrors()) {
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
             String contentType = MimeTypes.getContentType(file.getName());
-            if ("audio/mpeg3".equals(contentType)) {
+
+            if (!"audio/mpeg3".equals(contentType)) {
+                Files.delete(file);
+
+                Out.error(play.i18n.Messages.get("waves.error.upload", file.getName()));
+                Redirects.back();
+            } else {
+                User currentUser = Data.currentUser();
+
                 Sound sound = new Sound(currentUser, file.getName(), "");
                 sound.save();
 
-                File path = new File(
-                        String.format("%s/%s/", SOUND_PATH, currentUser.getId()));
-                path.mkdirs();
-                File target = new File(
-                        String.format("%s/%s/%s.mp3", SOUND_PATH, currentUser.getId(), sound.getId().toString()));
-                target.createNewFile();
-                if (!target.exists()) {
+                String out = String.format("%s/%s", SOUND_PATH, currentUser.getId());
+
+                boolean write = Drive.write(file, out, sound.getId().toString(), "mp3");
+                Files.delete(file);
+
+                if (!write) {
                     sound.delete();
-                    flash.error("No se pudo subir el archivo [%s]", sound.name);
+
+                    Out.error(play.i18n.Messages.get("waves.error.upload", sound.name));
+                    Redirects.back();
                 } else {
-                    sound.path = target.getPath();
+                    sound.path = out.concat("/").concat(sound.getId().toString()).concat(".mp3");
                     sound.save();
 
-                    Files.copy(file, target);
-                    flash.success("Se subio correctamente el archivo [%s]", sound.name);
+                    Out.success(play.i18n.Messages.get("waves.success.upload", sound.name));
+                    Redirects.files(currentUser);
                 }
-                Files.delete(file);
-            } else {
-                flash.error("El archivo [%s] no es valido!", file.getName());
             }
         }
-
-        Map<String, Object> args = new HashMap<>();
-        args.put("email", currentUser.email);
-
-        redirect(Router.reverse("Application.files", args).url);
     }
 
     /**
@@ -375,23 +633,37 @@ public class Application extends Controller {
      * @param soundId identificador
      */
     public static void deleteFile(@Required String soundId) {
-        Sound sound = sound(soundId);
-        if (null != sound) {
-            List<Playlist> playlists = Playlist.q().filter("sounds in", sound).asList();
-            for (Playlist playlist : playlists) {
-                playlist.sounds.remove(sound);
-                playlist.save();
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            Sound sound = Data.sound(soundId);
+
+            if (null == sound) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                if (!Data.isOwner(sound)) {
+                    Out.error(play.i18n.Messages.get("waves.error.deleteFile"));
+                    Redirects.back();
+                } else {
+                    User currentUser = Data.currentUser();
+
+                    if (Drive.delete(sound.path)) {
+                        List<Playlist> playlists = Playlist.q().filter("sounds in", sound).asList();
+                        for (Playlist playlist : playlists) {
+                            playlist.sounds.remove(sound);
+                            playlist.save();
+                        }
+
+                        sound.delete();
+                        Out.success(play.i18n.Messages.get("waves.success.deleteFile", sound.name));
+                    }
+
+                    Redirects.files(currentUser);
+                }
             }
-
-            Files.delete(new File(sound.path));
-            sound.delete();
-            flash.success("Se elimino correctamente el archivo [%s]", sound.name);
         }
-
-        Map<String, Object> args = new HashMap<>();
-        args.put("email", currentUser().email);
-
-        redirect(Router.reverse("Application.files", args).url);
     }
 
     /**
@@ -402,16 +674,25 @@ public class Application extends Controller {
      * @param soundId identificador
      */
     public static void streamFile(@Required String soundId) {
-        Sound sound = sound(soundId);
-        if (null == sound) {
-            Map<String, Object> args = new HashMap<>();
-            args.put("email", currentUser().email);
-
-            redirect(Router.reverse("Application.files", args).url);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            renderArgs.put("sound", sound);
+            Sound sound = Data.sound(soundId);
 
-            render();
+            if (null == sound) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                if (!Data.isOwner(sound) && !Data.belongsToFriend(sound)) {
+                    Out.error(play.i18n.Messages.get("waves.error.streamFile"));
+                    Redirects.back();
+                } else {
+                    renderArgs.put("sound", sound);
+
+                    render();
+                }
+            }
         }
     }
 
@@ -423,9 +704,25 @@ public class Application extends Controller {
      * @param soundId identificador.
      */
     public static void download(@Required String soundId) {
-        Sound sound = sound(soundId);
-        if (null != sound) {
-            renderBinary(new File(sound.path), sound.name);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            Sound sound = Data.sound(soundId);
+
+            if (null == sound) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                if (!Data.isOwner(sound) && !Data.belongsToFriend(sound)) {
+                    Out.error(play.i18n.Messages.get("waves.error.download"));
+                    Redirects.back();
+                } else {
+                    Drive.DriveFile file = Drive.read(sound.path);
+
+                    renderBinary(file.inputStream, sound.name, file.length, true);
+                }
+            }
         }
     }
 
@@ -437,16 +734,28 @@ public class Application extends Controller {
      * @param email correo del usuario.
      */
     public static void playlists(@Required String email) {
-        Relation relation = relation(email);
-
-        if (null == relation && !currentUser().email.equals(email)) {
-            redirect(Router.reverse("Application.home").url);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            List<Playlist> playlists = lists(email);
-            renderArgs.put("playlists", playlists);
-            renderArgs.put("listsOwner", user(email));
+            User user = Data.user(email);
 
-            render();
+            if (null == user) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                List<Playlist> playlists = Data.lists(user);
+
+                if (!Data.isCurrentUser(user) && !Data.isFriend(user)) {
+                    Out.error(play.i18n.Messages.get("waves.error.playlists"));
+                    Redirects.back();
+                } else {
+                    renderArgs.put("playlists", playlists);
+                    renderArgs.put("listsOwner", user);
+
+                    render();
+                }
+            }
         }
     }
 
@@ -456,16 +765,25 @@ public class Application extends Controller {
      * @param playlistId identificador.
      */
     public static void playlist(@Required String playlistId) {
-        Playlist playlist = list(playlistId);
-        if (null == playlist) {
-            Map<String, Object> args = new HashMap<>();
-            args.put("email", currentUser().email);
-
-            redirect(Router.reverse("Application.playlists", args).url);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
         } else {
-            renderArgs.put("playlist", playlist);
+            Playlist playlist = Data.list(playlistId);
 
-            render();
+            if (null == playlist) {
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
+            } else {
+                if (!Data.isOwner(playlist) && !Data.belongsToFriend(playlist)) {
+                    Out.error(play.i18n.Messages.get("waves.error.playlist"));
+                    Redirects.back();
+                } else {
+                    renderArgs.put("playlist", playlist);
+
+                    render();
+                }
+            }
         }
     }
 
@@ -474,19 +792,44 @@ public class Application extends Controller {
      *
      * @param name nombre de la lista de reproduccion.
      */
-    public static void createPlaylist(@Required @MinSize(5) @MaxSize(20) String name) {
+    public static void createPlaylist(@Required @MinSize(2) @MaxSize(50) String name) {
         if (Validation.hasErrors()) {
-            flash.error("No se pudo crear la lista de reproduccion [%s], el nombre debe de contener entre 5 y 20 caracteres", name);
+            Out.error(play.i18n.Messages.get("waves.error.createPlaylist", name));
+            Redirects.back();
         } else {
-            Playlist playlist = new Playlist(name, currentUser());
+            Playlist playlist = new Playlist(name, Data.currentUser());
             playlist.save();
-            flash.success("Se creo correctamente la lista de reproduccion [%s]", name);
+
+            Out.success(play.i18n.Messages.get("waves.success.createPlaylist", name));
+            Redirects.playlist(playlist);
         }
+    }
 
-        Map<String, Object> args = new HashMap<>();
-        args.put("email", currentUser().email);
+    /**
+     * Accion que actualiza el nombre de la lsita con el identificador especificado.
+     *
+     * @param playlistId identificador de la lista de reproduccion.
+     */
+    public static void changePlaylistName(@Required String playlistId, @Required @MinSize(2) @MaxSize(50) String name) {
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            User currentUser = Data.currentUser();
+            Playlist playlist = Data.list(playlistId);
 
-        redirect(Router.reverse("Application.playlists", args).url);
+            if (!Data.isOwner(playlist)) {
+                Out.error(play.i18n.Messages.get("waves.error.changePlaylistName"));
+                Redirects.back();
+            } else {
+                String oldName = playlist.name;
+                playlist.name = name;
+                playlist.save();
+
+                Out.success(play.i18n.Messages.get("waves.success.changePlaylistName", oldName, playlist.name));
+                Redirects.playlist(playlist);
+            }
+        }
     }
 
     /**
@@ -495,17 +838,23 @@ public class Application extends Controller {
      * @param playlistId identificador de la lista de reproduccion.
      */
     public static void deletePlaylist(@Required String playlistId) {
-        Playlist playlist = list(playlistId);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            User currentUser = Data.currentUser();
+            Playlist playlist = Data.list(playlistId);
 
-        if (null != playlist && playlist.owner.email.equals(currentUser().email)) {
-            playlist.delete();
-            flash.success("Se elimino correctamente  la lista de reproduccion [%s]", playlist.name);
+            if (!Data.isOwner(playlist)) {
+                Out.error(play.i18n.Messages.get("waves.error.deletePlaylist"));
+                Redirects.back();
+            } else {
+                playlist.delete();
+
+                Out.success(play.i18n.Messages.get("waves.success.deletePlaylist", playlist.name));
+                Redirects.playlists(currentUser);
+            }
         }
-
-        Map<String, Object> args = new HashMap<>();
-        args.put("email", currentUser().email);
-
-        redirect(Router.reverse("Application.playlists", args).url);
     }
 
     /**
@@ -517,29 +866,28 @@ public class Application extends Controller {
      * @param soundId identificador de la cancion.
      */
     public static void addToPlaylist(@Required String playlistId, @Required String soundId) {
-        if (!Validation.hasErrors()) {
-            Playlist playlist = list(playlistId);
-            Sound sound = sound(soundId);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            Playlist playlist = Data.list(playlistId);
+            Sound sound = Data.sound(soundId);
 
             if (null == playlist || null == sound) {
-                redirect(Router.reverse("Application.home").url);
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
             } else {
-                if (playlist.owner.email.equals(currentUser().email)
-                        && sound.owner.email.equals(currentUser().email)) {
+                if (!Data.isOwner(playlist) || (!Data.isOwner(sound) && !Data.belongsToFriend(sound))) {
+                    Out.error(play.i18n.Messages.get("waves.error.addToPlaylist"));
+                    Redirects.back();
+                } else {
                     playlist.sounds.add(sound);
                     playlist.save();
-                    flash.success("Se agrego correctamente la cancion [%s] a la lista de reproduccion [%s]", sound.name, playlist.name);
+
+                    Out.success(play.i18n.Messages.get("waves.success.addToPlaylist", sound.name, playlist.name));
+                    Redirects.playlist(playlist);
                 }
-                Map<String, Object> args = new HashMap<>();
-                args.put("playlistId", playlist.getId());
-
-                redirect(Router.reverse("Application.playlist", args).url);
             }
-        } else {
-            Map<String, Object> args = new HashMap<>();
-            args.put("email", currentUser().email);
-
-            redirect(Router.reverse("Application.playlists", args).url);
         }
     }
 
@@ -552,29 +900,28 @@ public class Application extends Controller {
      * @param soundId identificador de la cancion.
      */
     public static void removeFromPlaylist(@Required String playlistId, @Required String soundId) {
-        if (!Validation.hasErrors()) {
-            Playlist playlist = list(playlistId);
-            Sound sound = sound(soundId);
+        if (Validation.hasErrors()) {
+            Out.error(play.i18n.Messages.get("waves.error.invalid"));
+            Redirects.back();
+        } else {
+            Playlist playlist = Data.list(playlistId);
+            Sound sound = Data.sound(soundId);
 
             if (null == playlist || null == sound) {
-                redirect(Router.reverse("Application.home").url);
+                Out.error(play.i18n.Messages.get("waves.error.invalid"));
+                Redirects.back();
             } else {
-                if (playlist.owner.email.equals(currentUser().email)
-                        && sound.owner.email.equals(currentUser().email)) {
+                if (!Data.isOwner(playlist)) {
+                    Out.error(play.i18n.Messages.get("waves.error.removeFromPlaylist"));
+                    Redirects.back();
+                } else {
                     playlist.sounds.remove(sound);
                     playlist.save();
-                    flash.success("Se elimino correctamente la cancion [%s] de la lista de reproduccion [%s]", sound.name, playlist.name);
+
+                    Out.success(play.i18n.Messages.get("waves.success.removeFromPlaylist", sound.name, playlist.name));
+                    Redirects.playlist(playlist);
                 }
-                Map<String, Object> args = new HashMap<>();
-                args.put("playlistId", playlist.getId());
-
-                redirect(Router.reverse("Application.playlist", args).url);
             }
-        } else {
-            Map<String, Object> args = new HashMap<>();
-            args.put("email", currentUser().email);
-
-            redirect(Router.reverse("Application.playlists", args).url);
         }
     }
 
@@ -585,18 +932,23 @@ public class Application extends Controller {
      */
     public static void searchFile(String playlistId, String name) {
         List<Search> searches = new ArrayList<>();
-        if (null != playlistId && !playlistId.isEmpty()) {
-            Playlist playlist = list(playlistId);
-            List<Sound> sounds = sounds(currentUser().email);
 
-            if (null != playlist) {
-                for (Sound sound : sounds) {
-                    if (!playlist.sounds.contains(sound) && sound.name.toLowerCase().contains(name.toLowerCase())) {
-                        searches.add(new Search(sound.getId().toString(), sound.name));
+        if (null != playlistId && !playlistId.isEmpty()) {
+            Playlist playlist = Data.list(playlistId);
+
+            if (Data.isOwner(playlist)) {
+                List<Sound> sounds = Data.soundsAndFriendSounds();
+
+                if (null != playlist) {
+                    for (Sound sound : sounds) {
+                        if (!playlist.sounds.contains(sound) && sound.name.toLowerCase().contains(name.toLowerCase())) {
+                            searches.add(new Search(sound.getId().toString(), sound.name));
+                        }
                     }
                 }
             }
         }
+
         renderJSON(searches);
     }
 
